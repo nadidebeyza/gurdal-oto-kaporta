@@ -114,7 +114,7 @@ const NavLinkStyled = styled(NavLink)`
 const HamburgerButton = styled.button`
   display: none;
   background: transparent;
-  border: 2px solid rgba(255,255,255,0.2);
+  border: none;
   color: #fff;
   width: 44px;
   height: 44px;
