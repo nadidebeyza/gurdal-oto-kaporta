@@ -42,7 +42,7 @@ const LogoImage = styled.img`
   }
 
   @media (max-width: 768px) {
-    height: 48px;
+    height: 64px;
   }
 `;
 
@@ -116,8 +116,8 @@ const HamburgerButton = styled.button`
   background: transparent;
   border: none;
   color: #fff;
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   border-radius: 12px;
   cursor: pointer;
   display: grid;
@@ -131,7 +131,7 @@ const HamburgerButton = styled.button`
 
 const HamburgerIcon = styled.span`
   position: relative;
-  width: 18px;
+  width: 22px;
   height: 2px;
   background: ${props => (props.$open ? 'transparent' : '#fff')};
   transition: background 0.2s ease;
@@ -140,19 +140,19 @@ const HamburgerIcon = styled.span`
   &::after {
     content: '';
     position: absolute;
-    width: 18px;
+    width: 22px;
     height: 2px;
     background: #fff;
     transition: transform 0.2s ease, top 0.2s ease, bottom 0.2s ease;
   }
 
   &::before {
-    top: ${props => (props.$open ? '0' : '-6px')};
+    top: ${props => (props.$open ? '0' : '-7px')};
     transform: ${props => (props.$open ? 'rotate(45deg)' : 'none')};
   }
 
   &::after {
-    bottom: ${props => (props.$open ? '0' : '-6px')};
+    bottom: ${props => (props.$open ? '0' : '-7px')};
     transform: ${props => (props.$open ? 'rotate(-45deg)' : 'none')};
   }
 `;

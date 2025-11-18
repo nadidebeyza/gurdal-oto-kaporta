@@ -258,7 +258,7 @@ const ServiceItem = styled.li`
   color: #fff;
   background: rgba(0,0,0,0.3);
   border-radius: 14px;
-  padding: 0.9rem 1.1rem;
+  padding: 0.9rem 0.1rem;
   font-weight: 500;
   box-shadow: 0 1px 6px rgba(0,0,0,0.3);
   transition: transform 0.2s;
