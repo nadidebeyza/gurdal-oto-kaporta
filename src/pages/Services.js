@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import { FaTools, FaPaintRoller, FaCarCrash, FaShieldAlt, FaTruck, FaSprayCan } from "react-icons/fa";
+import { FaTools, FaPaintRoller, FaCarCrash, FaShieldAlt, FaTruck, FaSprayCan, FaCheckCircle } from "react-icons/fa";
 
 const accentColor = "#e63946";
 const fadeIn = keyframes`
@@ -82,19 +82,14 @@ const ServiceCard = styled.div`
 function Services() {
   const services = [
     {
+      title: "Hasar Tespiti",
+      description: "Aracınızın tüm hasarlarını detaylı analiz ederek doğru çözümü planlıyoruz",
+      icon: <FaCheckCircle />
+    },
+    {
       title: "Kaporta Onarımı",
       description: "Tüm marka ve modellerde kaporta onarımı, boya ve düzeltme işlemleri",
       icon: <FaTools />
-    },
-    {
-      title: "Çekici Hizmeti",
-      description: "7/24 acil çekici hizmeti ile aracınızı güvenle servisimize getiriyoruz",
-      icon: <FaTruck />
-    },
-    {
-      title: "Sigorta İşlemleri",
-      description: "Tüm sigorta şirketleriyle anlaşmalı olarak hizmet veriyoruz",
-      icon: <FaShieldAlt />
     },
     {
       title: "Boyama",
@@ -107,9 +102,14 @@ function Services() {
       icon: <FaPaintRoller />
     },
     {
-      title: "Cam Onarımı",
-      description: "Ön ve arka cam onarım ve değişim hizmetleri",
-      icon: <FaCarCrash />
+      title: "Sigorta İşlemleri",
+      description: "Tüm sigorta şirketleriyle anlaşmalı olarak hizmet veriyoruz",
+      icon: <FaShieldAlt />
+    },
+    {
+      title: "Çekici Hizmeti",
+      description: "7/24 acil çekici hizmeti ile aracınızı güvenle servisimize getiriyoruz",
+      icon: <FaTruck />
     }
   ];
 

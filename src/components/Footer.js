@@ -58,7 +58,6 @@ function Footer() {
           <ContactInfo>Telefon: 0322 436 72 49</ContactInfo>
           <ContactInfo>Telefon: 0536 469 66 63</ContactInfo>
           <ContactInfo>Telefon: 0546 469 66 63</ContactInfo>
-          <ContactInfo>E-posta: info@gurdalotokaporta.com</ContactInfo>
         </FooterSection>
         
         <FooterSection>

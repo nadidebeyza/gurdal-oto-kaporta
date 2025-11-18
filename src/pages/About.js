@@ -139,12 +139,13 @@ const MemberName = styled.h3`
   margin-bottom: 0.5rem;
 `;
 
-const MemberRole = styled.p`
-  color: ${accentColor};
-  font-weight: 500;
-`;
-
 function About() {
+  const teamMembers = [
+    'Derviş Gürdal',
+    'Eyüp Gürdal',
+    'Emrah Gürdal'
+  ];
+
   return (
     <AboutContainer>
       <PageTitle>Hakkımızda</PageTitle>
@@ -180,27 +181,14 @@ function About() {
       <AboutSection>
         <h2><FaUserTie /> Ekibimiz</h2>
         <TeamGrid>
-          <TeamMember>
-            <MemberImage>
-              <FaUserTie />
-            </MemberImage>
-            <MemberName>Ahmet Gürdal</MemberName>
-            <MemberRole>Kurucu & Genel Müdür</MemberRole>
-          </TeamMember>
-          <TeamMember>
-            <MemberImage>
-              <FaUserTie />
-            </MemberImage>
-            <MemberName>Mehmet Yılmaz</MemberName>
-            <MemberRole>Teknik Müdür</MemberRole>
-          </TeamMember>
-          <TeamMember>
-            <MemberImage>
-              <FaUserTie />
-            </MemberImage>
-            <MemberName>Ali Demir</MemberName>
-            <MemberRole>Kaporta Ustası</MemberRole>
-          </TeamMember>
+          {teamMembers.map((member) => (
+            <TeamMember key={member}>
+              <MemberImage>
+                <FaUserTie />
+              </MemberImage>
+              <MemberName>{member}</MemberName>
+            </TeamMember>
+          ))}
         </TeamGrid>
       </AboutSection>
     </AboutContainer>

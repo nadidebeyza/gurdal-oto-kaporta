@@ -18,7 +18,7 @@ const NavContainer = styled.div`
   align-items: center;
 `;
 
-const Logo = styled.div`
+const LogoLink = styled(NavLink)`
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -64,12 +64,12 @@ function Navbar() {
   return (
     <Nav>
       <NavContainer>
-        <Logo to="/">
+        <LogoLink to="/" aria-label="Ana sayfa">
           <LogoImage 
             src="/gurdal-oto-logo-dark.png" 
             alt="Gürdal Oto Kaporta Logo"
           />
-        </Logo>
+        </LogoLink>
         <NavLinks>
           <NavLinkStyled to="/" end>Ana Sayfa</NavLinkStyled>
           <NavLinkStyled to="/hizmetlerimiz">Hizmetlerimiz</NavLinkStyled>

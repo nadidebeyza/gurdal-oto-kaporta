@@ -128,7 +128,8 @@ const CTAButton = styled.a`
   letter-spacing: 0.5px;
   width: fit-content;
   &:hover {
-    background: #4A0000;
+    background: #fff;
+    color: #e63946;
     transform: translateY(-2px);
     box-shadow: 0 4px 24px rgba(230,57,70,0.18);
   }
@@ -288,7 +289,7 @@ function Home() {
             <ServicesList>
               <ServiceItem><FaTools /> Kaporta Onarımı</ServiceItem>
               <ServiceItem><FaPaintRoller /> Boya & Mini Onarım</ServiceItem>
-              <ServiceItem><FaCarCrash /> Cam Değişimi</ServiceItem>
+              <ServiceItem><FaCheckCircle /> Hasar Tespiti</ServiceItem>
               <ServiceItem><FaShieldAlt /> Sigorta İşlemleri</ServiceItem>
             </ServicesList>
           </WelcomeGrid>
