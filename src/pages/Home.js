@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import { FaTools, FaPaintRoller, FaCarCrash, FaShieldAlt, FaCheckCircle, FaClock, FaStar, FaUserFriends, FaMoneyBillWave } from "react-icons/fa";
+import { FaTools, FaPaintRoller, FaShieldAlt, FaCheckCircle, FaClock, FaStar, FaUserFriends, FaMoneyBillWave } from "react-icons/fa";
 
 const accentColor = "#e63946";
 const lightColor = "#fff";
