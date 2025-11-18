@@ -8,6 +8,8 @@ const Nav = styled.nav`
   background-color: #1a1a1a;
   padding: 1rem 2rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1000;
 `;
 
 const NavContainer = styled.div`
@@ -16,6 +18,12 @@ const NavContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  position: relative;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const LogoLink = styled(NavLink)`
@@ -32,12 +40,38 @@ const LogoImage = styled.img`
   &:hover {
     transform: scale(1.05);
   }
+
+  @media (max-width: 768px) {
+    height: 48px;
+  }
 `;
 
 const NavLinks = styled.div`
   display: flex;
   gap: 2rem;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    right: -1.9rem;
+    width: 130px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 1.25rem;
+    gap: 0.4rem;
+    background: #1a1a1a;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    transform-origin: top right;
+    transform: scale(${props => (props.$open ? 1 : 0.8)});
+    opacity: ${props => (props.$open ? 1 : 0)};
+    pointer-events: ${props => (props.$open ? 'auto' : 'none')};
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
 `;
 
 const NavLinkStyled = styled(NavLink)`
@@ -58,26 +92,117 @@ const NavLinkStyled = styled(NavLink)`
     color: ${accentColor};
     background: rgba(255, 255, 255, 0.1);
   }
+
+  @media (max-width: 768px) {
+    color: #f8f9fd;
+    width: 100%;
+    padding: 0.3rem 0;
+    border-radius: 0;
+
+    &:hover {
+      background: transparent;
+      color: ${accentColor};
+    }
+
+    &.active {
+      background: transparent;
+      color: ${accentColor};
+    }
+  }
+`;
+
+const HamburgerButton = styled.button`
+  display: none;
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.2);
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  @media (max-width: 768px) {
+    display: grid;
+  }
+`;
+
+const HamburgerIcon = styled.span`
+  position: relative;
+  width: 18px;
+  height: 2px;
+  background: ${props => (props.$open ? 'transparent' : '#fff')};
+  transition: background 0.2s ease;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 2px;
+    background: #fff;
+    transition: transform 0.2s ease, top 0.2s ease, bottom 0.2s ease;
+  }
+
+  &::before {
+    top: ${props => (props.$open ? '0' : '-6px')};
+    transform: ${props => (props.$open ? 'rotate(45deg)' : 'none')};
+  }
+
+  &::after {
+    bottom: ${props => (props.$open ? '0' : '-6px')};
+    transform: ${props => (props.$open ? 'rotate(-45deg)' : 'none')};
+  }
 `;
 
 function Navbar() {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(() => window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleToggle = () => setMenuOpen(prev => !prev);
+  const handleLinkClick = () => setMenuOpen(false);
+
   return (
     <Nav>
       <NavContainer>
-        <LogoLink to="/" aria-label="Ana sayfa">
+        <LogoLink to="/" aria-label="Ana sayfa" onClick={() => setMenuOpen(false)}>
           <LogoImage 
             src="/gurdal-oto-logo-dark.png" 
             alt="Gürdal Oto Kaporta Logo"
           />
         </LogoLink>
-        <NavLinks>
-          <NavLinkStyled to="/" end>Ana Sayfa</NavLinkStyled>
-          <NavLinkStyled to="/hizmetlerimiz">Hizmetlerimiz</NavLinkStyled>
-          <NavLinkStyled to="/satilik-araclar">Satılık Araçlar</NavLinkStyled>
-          <NavLinkStyled to="/galeri">Galeri</NavLinkStyled>
-          <NavLinkStyled to="/sigorta-kasko">Sigorta & Kasko</NavLinkStyled>
-          <NavLinkStyled to="/hakkimizda">Hakkımızda</NavLinkStyled>
-          <NavLinkStyled to="/iletisim">İletişim</NavLinkStyled>
+        {isMobile && (
+          <HamburgerButton
+            onClick={handleToggle}
+            aria-label="Menüyü aç/kapat"
+            aria-expanded={menuOpen}
+          >
+            <HamburgerIcon $open={menuOpen} />
+          </HamburgerButton>
+        )}
+        <NavLinks $open={isMobile ? menuOpen : true}>
+          <NavLinkStyled to="/" end onClick={handleLinkClick}>Ana Sayfa</NavLinkStyled>
+          <NavLinkStyled to="/hizmetlerimiz" onClick={handleLinkClick}>Hizmetlerimiz</NavLinkStyled>
+          <NavLinkStyled to="/satilik-araclar" onClick={handleLinkClick}>Satılık Araçlar</NavLinkStyled>
+          <NavLinkStyled to="/galeri" onClick={handleLinkClick}>Galeri</NavLinkStyled>
+          <NavLinkStyled to="/sigorta-kasko" onClick={handleLinkClick}>Sigorta & Kasko</NavLinkStyled>
+          <NavLinkStyled to="/hakkimizda" onClick={handleLinkClick}>Hakkımızda</NavLinkStyled>
+          <NavLinkStyled to="/iletisim" onClick={handleLinkClick}>İletişim</NavLinkStyled>
         </NavLinks>
       </NavContainer>
     </Nav>

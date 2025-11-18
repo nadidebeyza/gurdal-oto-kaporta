@@ -40,6 +40,11 @@ const FilterContainer = styled.div`
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const CategoryButton = styled.button`
@@ -59,6 +64,49 @@ const CategoryButton = styled.button`
     color: #fff;
     transform: scale(1.04);
     border: 2px solid transparent;
+  }
+
+  @media (max-width: 600px) {
+    display: none;
+  }
+`;
+
+const CategorySelectWrapper = styled.div`
+  display: none;
+
+  @media (max-width: 600px) {
+    display: block;
+    width: 100%;
+    position: relative;
+
+    &::after {
+      content: '⌄';
+      position: absolute;
+      right: 1.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: ${accentColor};
+      font-size: 1rem;
+      pointer-events: none;
+    }
+  }
+`;
+
+const CategorySelect = styled.select`
+  display: none;
+
+  @media (max-width: 600px) {
+    display: block;
+    width: 100%;
+    padding: 0.9rem 2.8rem 0.9rem 1rem;
+    border-radius: 14px;
+    border: 2px solid ${accentColor};
+    font-weight: 600;
+    font-size: 1rem;
+    color: ${accentColor};
+    background: #fff;
+    box-shadow: 0 1px 6px rgba(34,34,59,0.10);
+    appearance: none;
   }
 `;
 
@@ -262,6 +310,18 @@ function Gallery() {
             {category}
           </CategoryButton>
         ))}
+        <CategorySelectWrapper>
+          <CategorySelect
+            value={filters.category}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+          >
+            {categories.map(category => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </CategorySelect>
+        </CategorySelectWrapper>
       </FilterContainer>
 
       {filteredImages.length === 0 ? (
