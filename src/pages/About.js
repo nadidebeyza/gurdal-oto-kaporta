@@ -100,43 +100,33 @@ const AdvantageItem = styled.li`
 
 const TeamGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
+  justify-items: center;
 `;
 
 const TeamMember = styled.div`
   text-align: center;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 14px;
-  padding: 2rem;
   transition: transform 0.2s;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
 
   &:hover {
     transform: scale(1.03);
   }
 `;
 
-const MemberImage = styled.div`
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  margin: 0 auto 1.5rem;
-  background: ${accentColor};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  svg {
-    font-size: 4rem;
-    color: #fff;
-  }
-`;
-
 const MemberName = styled.h3`
   color: #fff;
   font-size: 1.3rem;
-  margin-bottom: 0.5rem;
+  margin: 0;
 `;
 
 function About() {
@@ -183,9 +173,6 @@ function About() {
         <TeamGrid>
           {teamMembers.map((member) => (
             <TeamMember key={member}>
-              <MemberImage>
-                <FaUserTie />
-              </MemberImage>
               <MemberName>{member}</MemberName>
             </TeamMember>
           ))}

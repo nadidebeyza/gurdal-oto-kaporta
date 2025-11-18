@@ -214,7 +214,9 @@ const WelcomeGrid = styled.div`
   display: flex;
   flex-direction: column;
   gap: 3rem;
-  align-items: center;
+  align-items: stretch;
+  width: 100%;
+
   @media (min-width: 900px) {
     flex-direction: row;
     align-items: flex-start;
@@ -224,18 +226,27 @@ const WelcomeGrid = styled.div`
 
 const WelcomeText = styled.div`
   flex: 2;
+  width: 100%;
 `;
 
 const ServicesList = styled.ul`
   flex: 1;
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
+  width: 100%;
+  max-width: 520px;
+
   @media (min-width: 600px) {
     grid-template-columns: 1fr 1fr;
+  }
+
+  @media (min-width: 900px) {
+    max-width: none;
+    margin: 0;
   }
 `;
 
@@ -252,6 +263,7 @@ const ServiceItem = styled.li`
   box-shadow: 0 1px 6px rgba(0,0,0,0.3);
   transition: transform 0.2s;
   cursor: pointer;
+  width: 100%;
   &:hover {
     transform: scale(1.03);
     background: rgba(0,0,0,0.4);

@@ -49,6 +49,61 @@ const ContactInfo = styled.p`
   margin-bottom: 0.5rem;
 `;
 
+const FooterBottom = styled.div`
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+`;
+
+const DeveloperInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+
+  @media (max-width: 600px) {
+    align-items: center;
+  }
+
+  small {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+  }
+`;
+
+const CocobitLogo = styled.a`
+  font-family: 'Sacramento', cursive;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  @media (max-width: 900px) {
+    font-size: 2rem;
+  }
+`;
+
 function Footer() {
   return (
     <FooterContainer>
@@ -76,6 +131,19 @@ function Footer() {
           <ContactInfo>Pazar: Kapalı</ContactInfo>
         </FooterSection>
       </FooterContent>
+      <FooterBottom>
+        <p>© {new Date().getFullYear()} Gürdal Oto Kaporta. Tüm hakları saklıdır.</p>
+          <DeveloperInfo>
+          <small>Bu dijital deneyimi hayata geçiren</small>
+          <CocobitLogo
+            href="https://cocobitsoftwareworks.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Cocobit Software Works
+          </CocobitLogo>
+        </DeveloperInfo>
+      </FooterBottom>
     </FooterContainer>
   );
 }
