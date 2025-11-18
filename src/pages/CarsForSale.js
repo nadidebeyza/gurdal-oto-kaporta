@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 // import { useApi } from '../hooks/useApi';
 // import { api } from '../services/api';
@@ -320,7 +320,7 @@ const ContactButton = styled.a`
 
 function CarsForSale() {
   // const { data: cars, loading, error, execute: loadCars } = useApi(api.getCars);
-  const [cars, setCars] = React.useState([
+  const [cars] = useState([
     {
       _id: '1',
       image: '/car-sale-1.jpg',
@@ -349,9 +349,9 @@ function CarsForSale() {
     }
     // ...add more mock cars
   ]);
-  const [loading] = React.useState(false);
-  const [error] = React.useState(null);
-  const [filters, setFilters] = React.useState({
+  const [loading] = useState(false);
+  const [error] = useState(null);
+  const [filters] = useState({
     search: '',
     minPrice: '',
     maxPrice: ''

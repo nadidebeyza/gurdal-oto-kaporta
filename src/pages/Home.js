@@ -3,17 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { FaTools, FaPaintRoller, FaCarCrash, FaShieldAlt, FaCheckCircle, FaClock, FaStar, FaUserFriends, FaMoneyBillWave } from "react-icons/fa";
 
 const accentColor = "#e63946";
-const accentColorDark = "#4A0000";
-const accentColorLight = "#ffb3b3";
-const darkColor = "#22223b";
 const lightColor = "#fff";
-const secondaryColor = "#457b9d";
-
-const gradientBG = keyframes`
-  0% { background-position: 0% 50% }
-  50% { background-position: 100% 50% }
-  100% { background-position: 0% 50% }
-`;
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(40px);}

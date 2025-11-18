@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaWhatsapp } from "react-icons/fa";
+import { FaPhone, FaMapMarkerAlt, FaClock, FaWhatsapp } from "react-icons/fa";
 import { api } from '../services/api';
 
 const accentColor = "#e63946";

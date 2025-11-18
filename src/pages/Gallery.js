@@ -42,6 +42,25 @@ const FilterContainer = styled.div`
   justify-content: center;
 `;
 
+const SearchInput = styled.input`
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  border: 2px solid ${accentColor};
+  background: #fff;
+  color: ${accentColor};
+  font-weight: 500;
+  font-size: 1rem;
+  min-width: 220px;
+  box-shadow: 0 1px 6px rgba(34,34,59,0.10);
+  transition: border 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #a4161a;
+    box-shadow: 0 2px 12px rgba(34,34,59,0.18);
+  }
+`;
+
 const CategoryButton = styled.button`
   padding: 0.8rem 1.5rem;
   border: 2px solid ${props => props.active ? 'transparent' : accentColor};
@@ -272,6 +291,12 @@ function Gallery() {
             {category}
           </CategoryButton>
         ))}
+        <SearchInput
+          type="text"
+          value={filters.search}
+          placeholder="Kelime ile ara"
+          onChange={handleSearchChange}
+        />
       </FilterContainer>
 
       {filteredImages.length === 0 ? (
