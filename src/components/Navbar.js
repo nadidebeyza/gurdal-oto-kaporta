@@ -63,9 +63,9 @@ const NavLinks = styled.div`
     justify-content: flex-start;
     padding: 1.25rem;
     gap: 0.4rem;
-    background: #1a1a1a;
-    border-radius: 16px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    background: ${props => (props.$open ? '#fff' : 'rgba(255,255,255,0.95)')};
+    border-radius: 18px;
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.2);
     transform-origin: top right;
     transform: scale(${props => (props.$open ? 1 : 0.8)});
     opacity: ${props => (props.$open ? 1 : 0)};
@@ -94,13 +94,13 @@ const NavLinkStyled = styled(NavLink)`
   }
 
   @media (max-width: 768px) {
-    color: #f8f9fd;
+    color: #1a1a1a;
     width: 100%;
     padding: 0.3rem 0;
     border-radius: 0;
 
     &:hover {
-      background: transparent;
+      background: rgba(230,57,70,0.08);
       color: ${accentColor};
     }
 
@@ -160,6 +160,8 @@ const HamburgerIcon = styled.span`
 function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth <= 768);
+  const navLinksRef = React.useRef(null);
+  const toggleButtonRef = React.useRef(null);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -170,8 +172,24 @@ function Navbar() {
       }
     };
 
+    const handleClickOutside = (event) => {
+      if (!navLinksRef.current) return;
+      if (
+        navLinksRef.current.contains(event.target) ||
+        toggleButtonRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setMenuOpen(false);
+    };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleToggle = () => setMenuOpen(prev => !prev);
@@ -188,6 +206,7 @@ function Navbar() {
         </LogoLink>
         {isMobile && (
           <HamburgerButton
+            ref={toggleButtonRef}
             onClick={handleToggle}
             aria-label="Menüyü aç/kapat"
             aria-expanded={menuOpen}
@@ -195,7 +214,7 @@ function Navbar() {
             <HamburgerIcon $open={menuOpen} />
           </HamburgerButton>
         )}
-        <NavLinks $open={isMobile ? menuOpen : true}>
+        <NavLinks ref={navLinksRef} $open={isMobile ? menuOpen : true}>
           <NavLinkStyled to="/" end onClick={handleLinkClick}>Ana Sayfa</NavLinkStyled>
           <NavLinkStyled to="/hizmetlerimiz" onClick={handleLinkClick}>Hizmetlerimiz</NavLinkStyled>
           <NavLinkStyled to="/satilik-araclar" onClick={handleLinkClick}>Satılık Araçlar</NavLinkStyled>
