@@ -127,12 +127,13 @@ const MemberName = styled.h3`
   color: #fff;
   font-size: 1.3rem;
   margin: 0;
+  text-transform: uppercase;
 `;
 
 function About() {
   const teamMembers = [
     'Derviş Gürdal',
-    'Eyüp Gürdal',
+    'Eyyüp Gürdal',
     'Emrah Gürdal'
   ];
 
