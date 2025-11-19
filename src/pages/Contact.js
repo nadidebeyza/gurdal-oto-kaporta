@@ -186,7 +186,7 @@ function Contact() {
               <FaPhone /> 0546 469 66 63
             </InfoItem>
             <InfoItem>
-              <FaMapMarkerAlt /> Meydan Mah. Obalar Cad. No: 371 Seyhan/ADANA
+              <FaMapMarkerAlt /> Obalar Cad. No: 371 Seyhan/ADANA
             </InfoItem>
             <InfoItem>
               <FaClock /> Pazartesi - Cumartesi: 08:30 - 18:30
@@ -197,7 +197,7 @@ function Contact() {
         <ContactSection>
           <h2>Mesaj Gönderin</h2>
           <ContactForm
-            action="https://formsubmit.co/nadidebeyzadokur@gmail.com"
+            action="https://formsubmit.co/gurdalotokaporta@gmail.com"
             method="POST"
           >
             <input type="hidden" name="_captcha" value="false" />

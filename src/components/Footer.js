@@ -118,7 +118,7 @@ function Footer() {
         
         <FooterSection>
           <h3>İletişim</h3>
-          <ContactInfo>Adres: Meydan Mah. Obalar Cad. No: 371 Seyhan/ADANA</ContactInfo>
+          <ContactInfo>Adres: Obalar Cad. No: 371 Seyhan/ADANA</ContactInfo>
           <ContactInfo>Telefon: 0322 436 72 49</ContactInfo>
           <ContactInfo>Telefon: 0536 469 66 63</ContactInfo>
           <ContactInfo>Telefon: 0546 469 66 63</ContactInfo>
