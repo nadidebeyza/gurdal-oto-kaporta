@@ -353,23 +353,6 @@ const ContactText = styled.p`
   margin-bottom: 1rem;
 `;
 
-const ContactButton = styled.a`
-  display: inline-block;
-  padding: 1rem 2rem;
-  background: ${accentColor};
-  color: white;
-  text-decoration: none;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #a4161a;
-    transform: scale(1.05);
-  }
-`;
-
 function CarsForSale() {
   // const { data: cars, loading, error, execute: loadCars } = useApi(api.getCars);
   const [cars] = useState([
