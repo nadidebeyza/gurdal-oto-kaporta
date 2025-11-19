@@ -133,7 +133,9 @@ function Footer() {
   return (
     <FooterContainer>
       <FooterTop>
-        <img src="/gurdal-oto-logo-dark.png" alt="Gürdal Oto Kaporta Logo" />
+        <Link to="/" onClick={handleNavigate(() => window.location.assign('/'))}>
+          <img src="/gurdal-oto-logo-dark.png" alt="Gürdal Oto Kaporta Logo" />
+        </Link>
       </FooterTop>
       <FooterContent>
         <FooterSection>
