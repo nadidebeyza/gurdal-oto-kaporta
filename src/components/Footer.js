@@ -105,10 +105,11 @@ const CocobitLogo = styled.a`
 `;
 
 function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
+  const handleNavigate = (action) => (event) => {
+    event.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      setTimeout(action, 0);
     });
   };
 
@@ -117,10 +118,10 @@ function Footer() {
       <FooterContent>
         <FooterSection>
           <h3>Hızlı Erişim</h3>
-          <FooterLink to="/" onClick={scrollToTop}>Ana Sayfa</FooterLink>
-          <FooterLink to="/hizmetlerimiz" onClick={scrollToTop}>Hizmetlerimiz</FooterLink>
-          <FooterLink to="/satilik-araclar" onClick={scrollToTop}>Satılık Araçlar</FooterLink>
-          <FooterLink to="/galeri" onClick={scrollToTop}>Galeri</FooterLink>
+          <FooterLink to="/" onClick={handleNavigate(() => window.location.assign('/'))}>Ana Sayfa</FooterLink>
+          <FooterLink to="/hizmetlerimiz" onClick={handleNavigate(() => window.location.assign('/hizmetlerimiz'))}>Hizmetlerimiz</FooterLink>
+          <FooterLink to="/satilik-araclar" onClick={handleNavigate(() => window.location.assign('/satilik-araclar'))}>Satılık Araçlar</FooterLink>
+          <FooterLink to="/galeri" onClick={handleNavigate(() => window.location.assign('/galeri'))}>Galeri</FooterLink>
         </FooterSection>
         
         <FooterSection>
