@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FaTools, FaPaintRoller, FaShieldAlt, FaCheckCircle, FaClock, FaStar, FaUserFriends, FaMoneyBillWave } from "react-icons/fa";
 
@@ -71,6 +71,7 @@ const Hero = styled.div`
   }
 
   @media (max-width: 900px) {
+    margin: 1rem 0 2rem;
     flex-direction: column;
     min-height: auto;
     padding: 3rem 2rem;
@@ -78,6 +79,10 @@ const Hero = styled.div`
     &::after {
       display: none;
     }
+  }
+
+  @media (max-width: 600px) {
+    margin: 0.5rem 0 1.5rem;
   }
 `;
 
@@ -147,7 +152,7 @@ const Subtitle = styled.p`
   }
 `;
 
-const CTAButton = styled.a`
+const CTAButton = styled.button`
   display: inline-block;
   background: #e63946;
   color: #fff;
@@ -155,7 +160,8 @@ const CTAButton = styled.a`
   font-size: 1.1rem;
   padding: 1rem 2.5rem;
   border-radius: 10px;
-  text-decoration: none;
+  border: none;
+  cursor: pointer;
   box-shadow: 0 2px 12px rgba(230,57,70,0.15);
   transition: all 0.3s ease;
   margin-top: 1rem;
@@ -172,6 +178,52 @@ const CTAButton = styled.a`
 
   @media (max-width: 900px) {
     width: auto;
+  }
+`;
+
+const NumbersOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 1.5rem;
+  cursor: pointer;
+`;
+
+const ContactNumbers = styled.div`
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem 1.6rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  max-width: 360px;
+  width: 100%;
+  position: relative;
+`;
+
+const NumberItem = styled.a`
+  color: #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.4px;
+  transition: color 0.2s;
+
+  span {
+    color: #e63946;
+    font-weight: 600;
+  }
+
+  &:hover {
+    color: #e63946;
   }
 `;
 
@@ -316,6 +368,16 @@ const AdvantageCard = styled.div`
 `;
 
 function Home() {
+  const [showNumbers, setShowNumbers] = useState(false);
+
+  const contactNumbers = [
+    { label: 'Sabit Hat', phone: '0322 436 72 49' },
+    { label: 'Mobil', phone: '0536 469 66 63' },
+    { label: 'Mobil', phone: '0546 469 66 63' },
+  ];
+
+  const handleShowNumbers = () => setShowNumbers((prev) => !prev);
+
   return (
     <PageBG>
       <HomeContainer>
@@ -326,7 +388,28 @@ function Home() {
               Aracınızın değerini koruyun, profesyonel ekibimize güvenin.<br />
               Hasar onarımında 30+ yıl tecrübe!
             </Subtitle>
-            <CTAButton href="/iletisim">Hemen Teklif Al</CTAButton>
+            <CTAButton type="button" onClick={handleShowNumbers}>
+              Hemen Teklif Al
+            </CTAButton>
+            {showNumbers && (
+              <NumbersOverlay onClick={handleShowNumbers}>
+                <ContactNumbers
+                  role="dialog"
+                  aria-modal="true"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {contactNumbers.map(({ label, phone }) => (
+                    <NumberItem
+                      key={`${label}-${phone}`}
+                      href={`tel:${phone.replace(/\s+/g, '')}`}
+                    >
+                      <span>{label}</span>
+                      {phone}
+                    </NumberItem>
+                  ))}
+                </ContactNumbers>
+              </NumbersOverlay>
+            )}
           </HeroContent>
           <HeroImage />
         </Hero>

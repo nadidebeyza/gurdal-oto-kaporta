@@ -1,5 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  RouterProvider,
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+} from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -21,73 +26,51 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-function App() {
-  return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={
-            <>
-              <Navbar />
-              <Home />
-              <Footer />
-            </>
-          } />
-          <Route path="/hizmetlerimiz" element={
-            <>
-              <Navbar />
-              <Services />
-              <Footer />
-            </>
-          } />
-          <Route path="/satilik-araclar" element={
-            <>
-              <Navbar />
-              <CarsForSale />
-              <Footer />
-            </>
-          } />
-          <Route path="/galeri" element={
-            <>
-              <Navbar />
-              <Gallery />
-              <Footer />
-            </>
-          } />
-          <Route path="/sigorta-kasko" element={
-            <>
-              <Navbar />
-              <Insurance />
-              <Footer />
-            </>
-          } />
-          <Route path="/hakkimizda" element={
-            <>
-              <Navbar />
-              <About />
-              <Footer />
-            </>
-          } />
-          <Route path="/iletisim" element={
-            <>
-              <Navbar />
-              <Contact />
-              <Footer />
-            </>
-          } />
+const PublicLayout = () => (
+  <>
+    <Navbar />
+    <Outlet />
+    <Footer />
+  </>
+);
 
-          {/* Admin routes */}
-          <Route path="/admin/login" element={<Login />} />
-          <Route path="/admin/dashboard/*" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </div>
-    </Router>
-  );
+const router = createBrowserRouter(
+  [
+    {
+      element: <PublicLayout />,
+      children: [
+        { path: '/', element: <Home /> },
+        { path: '/hizmetlerimiz', element: <Services /> },
+        { path: '/satilik-araclar', element: <CarsForSale /> },
+        { path: '/galeri', element: <Gallery /> },
+        { path: '/sigorta-kasko', element: <Insurance /> },
+        { path: '/hakkimizda', element: <About /> },
+        { path: '/iletisim', element: <Contact /> },
+      ],
+    },
+    {
+      path: '/admin/login',
+      element: <Login />,
+    },
+    {
+      path: '/admin/dashboard/*',
+      element: (
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      ),
+    },
+  ],
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    },
+  },
+);
+
+function App() {
+  return <RouterProvider router={router} />;
 }
 
 export default App; 

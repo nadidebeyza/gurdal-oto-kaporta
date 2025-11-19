@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FaPhone, FaMapMarkerAlt, FaClock, FaWhatsapp } from "react-icons/fa";
-import { api } from '../services/api';
 
 const accentColor = "#e63946";
 const fadeIn = keyframes`
@@ -166,32 +165,6 @@ const MapSection = styled.div`
 `;
 
 function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await api.sendContactForm(formData);
-      alert('Mesajınız başarıyla gönderildi.');
-      setFormData({ name: '', email: '', phone: '', message: '' });
-    } catch (error) {
-      alert('Mesaj gönderilirken bir hata oluştu.');
-      console.error('Error sending message:', error);
-    }
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
   return (
     <ContactContainer>
       <PageTitle>İletişim</PageTitle>
@@ -223,15 +196,18 @@ function Contact() {
 
         <ContactSection>
           <h2>Mesaj Gönderin</h2>
-          <ContactForm onSubmit={handleSubmit}>
+          <ContactForm
+            action="https://formsubmit.co/nadidebeyzadokur@gmail.com"
+            method="POST"
+          >
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_language" value="tr" />
             <FormGroup>
               <Label htmlFor="name">Ad Soyad</Label>
               <Input
                 type="text"
                 id="name"
                 name="name"
-                value={formData.name}
-                onChange={handleChange}
                 required
                 placeholder="Adınız Soyadınız"
               />
@@ -243,8 +219,6 @@ function Contact() {
                 type="email"
                 id="email"
                 name="email"
-                value={formData.email}
-                onChange={handleChange}
                 required
                 placeholder="E-posta adresiniz"
               />
@@ -256,8 +230,6 @@ function Contact() {
                 type="tel"
                 id="phone"
                 name="phone"
-                value={formData.phone}
-                onChange={handleChange}
                 required
                 placeholder="Telefon numaranız"
               />
@@ -268,8 +240,6 @@ function Contact() {
               <TextArea
                 id="message"
                 name="message"
-                value={formData.message}
-                onChange={handleChange}
                 required
                 placeholder="Mesajınızı yazın..."
               />

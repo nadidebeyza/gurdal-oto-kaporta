@@ -35,7 +35,6 @@ const PageDescription = styled.p`
 `;
 
 const ServiceGrid = styled.div`
-  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
@@ -49,6 +48,8 @@ const ServiceCard = styled.div`
   box-shadow: 0 1px 6px rgba(34,34,59,0.18);
   transition: transform 0.2s;
   cursor: pointer;
+  padding-top: 2px;
+  margin-bottom: 1.5rem;
   
   &:hover {
     transform: scale(1.03);
