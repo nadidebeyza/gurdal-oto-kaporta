@@ -105,15 +105,22 @@ const CocobitLogo = styled.a`
 `;
 
 function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <FooterContainer>
       <FooterContent>
         <FooterSection>
           <h3>Hızlı Erişim</h3>
-          <FooterLink to="/">Ana Sayfa</FooterLink>
-          <FooterLink to="/hizmetlerimiz">Hizmetlerimiz</FooterLink>
-          <FooterLink to="/satilik-araclar">Satılık Araçlar</FooterLink>
-          <FooterLink to="/galeri">Galeri</FooterLink>
+          <FooterLink to="/" onClick={scrollToTop}>Ana Sayfa</FooterLink>
+          <FooterLink to="/hizmetlerimiz" onClick={scrollToTop}>Hizmetlerimiz</FooterLink>
+          <FooterLink to="/satilik-araclar" onClick={scrollToTop}>Satılık Araçlar</FooterLink>
+          <FooterLink to="/galeri" onClick={scrollToTop}>Galeri</FooterLink>
         </FooterSection>
         
         <FooterSection>
