@@ -11,6 +11,23 @@ const FooterContainer = styled.footer`
   margin-top: 4rem;
 `;
 
+const FooterTop = styled.div`
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  img {
+    height: 70px;
+    width: auto;
+  }
+
+  @media (max-width: 600px) {
+    justify-content: center;
+  }
+`;
+
 const FooterContent = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -115,6 +132,9 @@ function Footer() {
 
   return (
     <FooterContainer>
+      <FooterTop>
+        <img src="/gurdal-oto-logo-dark.png" alt="Gürdal Oto Kaporta Logo" />
+      </FooterTop>
       <FooterContent>
         <FooterSection>
           <h3>Hızlı Erişim</h3>
