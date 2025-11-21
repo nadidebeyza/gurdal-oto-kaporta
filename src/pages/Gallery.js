@@ -213,58 +213,6 @@ const CloseButton = styled.button`
   }
 `;
 
-const NoticeOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1400;
-  padding: 1.5rem;
-  backdrop-filter: blur(2px);
-`;
-
-const NoticeCard = styled.div`
-  background: #fff;
-  border-radius: 18px;
-  padding: 2rem;
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
-
-  h3 {
-    color: ${accentColor};
-    margin-bottom: 0.8rem;
-    font-size: 1.6rem;
-  }
-
-  p {
-    color: #1a1a1a;
-    line-height: 1.5;
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-  }
-`;
-
-const NoticeButton = styled.button`
-  background: ${accentColor};
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 0.8rem 1.8rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-
-  &:hover {
-    background: #a4161a;
-    transform: translateY(-2px);
-  }
-`;
-
 const NoResults = styled.div`
   text-align: center;
   padding: 2rem;
@@ -277,7 +225,6 @@ function Gallery() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [showNotice, setShowNotice] = useState(false);
   const [filters, setFilters] = useState({
     category: 'Tümü'
   });
