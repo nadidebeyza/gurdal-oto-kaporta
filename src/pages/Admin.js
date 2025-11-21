@@ -302,23 +302,6 @@ const PhotoListContainer = styled.div`
   border-radius: 8px;
 `;
 
-const PhotoItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  background: white;
-  border-radius: 6px;
-`;
-
-const PhotoUrl = styled.span`
-  flex: 1;
-  font-size: 0.9rem;
-  color: #666;
-  word-break: break-all;
-`;
-
 const SmallButton = styled.button`
   padding: 0.3rem 0.6rem;
   font-size: 0.85rem;
@@ -329,26 +312,12 @@ const SmallButton = styled.button`
   transition: all 0.2s;
 `;
 
-const AddPhotoButton = styled(SmallButton)`
-  background: #4ade80;
-  color: white;
-  &:hover {
-    background: #22c55e;
-  }
-`;
-
 const RemovePhotoButton = styled(SmallButton)`
   background: #f87171;
   color: white;
   &:hover {
     background: #ef4444;
   }
-`;
-
-const PhotoInputGroup = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
 `;
 
 const ImagePreview = styled.img`
@@ -388,14 +357,12 @@ function Admin() {
   const [status, setStatus] = useState(null);
   const [carsLoading, setCarsLoading] = useState(false);
   const [galleryLoading, setGalleryLoading] = useState(false);
-  const [carImagePreview, setCarImagePreview] = useState('');
   const [galleryImagePreview, setGalleryImagePreview] = useState('');
   const [editingCarId, setEditingCarId] = useState(null);
   const [editingGalleryId, setEditingGalleryId] = useState(null);
 
   const resetCarForm = () => {
     setCarForm(emptyCarForm);
-    setCarImagePreview('');
     setEditingCarId(null);
   };
 
@@ -573,7 +540,6 @@ function Admin() {
       transmission: car.transmission || '',
       imageFiles: [] // Files will be empty when editing, user can add new ones
     });
-    setCarImagePreview(car.image || (carPhotos[0] || ''));
     setEditingCarId(car._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -637,9 +603,6 @@ function Admin() {
               onChange={(e) => {
                 const files = Array.from(e.target.files || []);
                 setCarForm({ ...carForm, imageFiles: [...carForm.imageFiles, ...files] });
-                if (files.length > 0) {
-                  setCarImagePreview(URL.createObjectURL(files[0]));
-                }
               }}
             />
             {carForm.imageFiles && carForm.imageFiles.length > 0 && (
