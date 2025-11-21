@@ -43,6 +43,13 @@ router.post('/', async (req, res) => {
     if (!mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok. Lütfen MongoDB yapılandırmasını kontrol edin.' });
     }
+    // Validate required fields
+    if (!req.body.title || !req.body.image || !req.body.year || !req.body.km || !req.body.price || !req.body.details) {
+      return res.status(400).json({ 
+        message: 'Lütfen tüm gerekli alanları doldurun: Başlık, Görsel, Yıl, KM, Fiyat, Detaylar' 
+      });
+    }
+
     const car = new Car({
       title: req.body.title,
       image: req.body.image,
@@ -57,7 +64,9 @@ router.post('/', async (req, res) => {
     const newCar = await car.save();
     res.status(201).json(newCar);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error saving car:', error);
+    const errorMessage = error.message || 'Araç kaydedilirken hata oluştu.';
+    res.status(400).json({ message: errorMessage });
   }
 });
 

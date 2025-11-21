@@ -427,8 +427,9 @@ function Admin() {
       resetCarForm();
       loadCars();
     } catch (error) {
-      console.error(error);
-      setStatus({ type: 'error', message: 'Araç kaydedilirken hata oluştu.' });
+      console.error('Car save error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Araç kaydedilirken hata oluştu.';
+      setStatus({ type: 'error', message: errorMessage });
     }
   };
 
@@ -473,8 +474,9 @@ function Admin() {
       resetGalleryForm();
       loadGallery();
     } catch (error) {
-      console.error(error);
-      setStatus({ type: 'error', message: 'Galeri kaydedilirken hata oluştu.' });
+      console.error('Gallery save error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Galeri kaydedilirken hata oluştu.';
+      setStatus({ type: 'error', message: errorMessage });
     }
   };
 

@@ -43,16 +43,25 @@ router.post('/', async (req, res) => {
     if (!mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok. Lütfen MongoDB yapılandırmasını kontrol edin.' });
     }
+    // Validate required fields
+    if (!req.body.url || !req.body.title) {
+      return res.status(400).json({ 
+        message: 'Lütfen görsel URL ve başlık alanlarını doldurun.' 
+      });
+    }
+
     const image = new GalleryImage({
       url: req.body.url,
       title: req.body.title,
       description: req.body.description,
-      category: req.body.category
+      category: req.body.category || 'Diğer'
     });
     const newImage = await image.save();
     res.status(201).json(newImage);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error saving gallery image:', error);
+    const errorMessage = error.message || 'Galeri görseli kaydedilirken hata oluştu.';
+    res.status(400).json({ message: errorMessage });
   }
 });
 
