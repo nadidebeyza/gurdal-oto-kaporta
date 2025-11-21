@@ -5,35 +5,14 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
-const defaultOrigins = [
-  'http://localhost:3000',
-  'https://gurdalotokaporta.netlify.app',
-  'https://gurdalotokaporta.com',
-  'https://xn--grdalotokaporta-zvb.com'
-];
-
-const envOrigins = (process.env.CLIENT_URL || '')
-  .split(',')
-  .map(origin => origin.trim())
-  .filter(Boolean);
-
-const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
-
-const corsOptions = {
-  origin: allowedOrigins,
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// CORS - Allow all origins (simple, no config needed)
+app.use(cors({
+  origin: true, // Allow any origin
+  credentials: true
+}));
 
 app.use((req, res, next) => {
-  const requestOrigin = req.headers.origin;
-  if (allowedOrigins.includes(requestOrigin)) {
-    res.header('Access-Control-Allow-Origin', requestOrigin);
-  }
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   if (req.method === 'OPTIONS') {
@@ -43,11 +22,19 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/gurdal-oto', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+// MongoDB connection (non-blocking - server works even if MongoDB is unavailable)
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }).then(() => {
+    console.log('MongoDB connected');
+  }).catch((err) => {
+    console.log('MongoDB connection error (server will continue without DB):', err.message);
+  });
+} else {
+  console.log('MongoDB URI not set - running without database (login still works)');
+}
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));

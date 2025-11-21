@@ -11,33 +11,40 @@ router.post('/login', async (req, res) => {
     
     // Check hardcoded admin credentials first
     if (username === 'eyyüp' && password === 'N7X4QD') {
+      const jwtSecret = process.env.JWT_SECRET || 'gurdal_oto_2024_secure_jwt_key_7x9K2mP5qR8vW3nT6yB1cD4fG7hJ0kL';
       const token = jwt.sign(
         { id: 'admin', username: 'eyyüp', role: 'admin' },
-        process.env.JWT_SECRET,
+        jwtSecret,
         { expiresIn: '24h' }
       );
       return res.json({ token });
     }
 
-    // Fall back to database check
-    const user = await User.findOne({ username });
+    // Fall back to database check (only if MongoDB is available)
+    try {
+      const user = await User.findOne({ username });
 
-    if (!user) {
+      if (!user) {
+        return res.status(401).json({ message: 'Geçersiz kullanıcı adı veya şifre' });
+      }
+
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Geçersiz kullanıcı adı veya şifre' });
+      }
+
+      const jwtSecret = process.env.JWT_SECRET || 'gurdal_oto_2024_secure_jwt_key_7x9K2mP5qR8vW3nT6yB1cD4fG7hJ0kL';
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        jwtSecret,
+        { expiresIn: '24h' }
+      );
+
+      res.json({ token });
+    } catch (dbError) {
+      // If database check fails, return error (but hardcoded login already worked above)
       return res.status(401).json({ message: 'Geçersiz kullanıcı adı veya şifre' });
     }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Geçersiz kullanıcı adı veya şifre' });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.json({ token });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -46,8 +53,23 @@ router.post('/login', async (req, res) => {
 // Get current user
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
+    // If it's the hardcoded admin user, return admin info directly
+    if (req.user.id === 'admin' || req.user.username === 'eyyüp') {
+      return res.json({ id: 'admin', username: 'eyyüp', role: 'admin' });
+    }
+    
+    // Otherwise try to get from database
+    try {
+      const user = await User.findById(req.user.id).select('-password');
+      if (user) {
+        return res.json(user);
+      }
+    } catch (dbError) {
+      // Database not available, but user is authenticated
+      return res.json({ id: req.user.id, username: req.user.username, role: req.user.role });
+    }
+    
+    res.json({ id: req.user.id, username: req.user.username, role: req.user.role });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
