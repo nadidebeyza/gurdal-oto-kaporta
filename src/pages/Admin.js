@@ -524,11 +524,6 @@ function Admin() {
   };
 
   const handleEditCar = (car) => {
-    // Get photos array, fallback to empty array or single image
-    const carPhotos = Array.isArray(car.photos) && car.photos.length > 0 
-      ? car.photos 
-      : (car.image ? [car.image] : []);
-    
     setCarForm({
       title: car.title || '',
       year: car.year || '',
