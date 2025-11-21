@@ -2,19 +2,43 @@ import axios from 'axios';
 
 /**
  * During local development the backend runs on port 5001 (port 5000 is reserved
- * by macOS Control Center). In production/previews we expect the frontend to be
- * served from the same origin as the backend, so a relative `/api` path works.
+ * by macOS Control Center). In production, use REACT_APP_API_URL env var.
  */
-const DEFAULT_API_URL =
-  process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5001/api';
-
 const normalizeApiUrl = (url) => {
-  if (!url) return url;
+  if (!url) return null;
   const trimmed = url.replace(/\/+$/, '');
   return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
 };
 
-const API_URL = normalizeApiUrl(process.env.REACT_APP_API_URL) || DEFAULT_API_URL;
+const getApiUrl = () => {
+  // Always check env var first (for Netlify/production)
+  const envUrl = normalizeApiUrl(process.env.REACT_APP_API_URL);
+  if (envUrl) return envUrl;
+  
+  // If we're on Netlify/deployed site but no env var, this is a problem
+  const isDeployed = window.location.hostname.includes('netlify.app') || 
+                     window.location.hostname.includes('gurdalotokaporta.com') ||
+                     window.location.hostname.includes('xn--grdalotokaporta-zvb.com');
+  
+  if (isDeployed) {
+    console.error('❌ REACT_APP_API_URL not set in Netlify! Please set it in Environment Variables.');
+    // Try to use the same domain as backend (if backend is on gurdalotokaporta.com)
+    return 'https://gurdalotokaporta.com/api';
+  }
+  
+  // Fallback to localhost for local development
+  return 'http://localhost:5001/api';
+};
+
+const API_URL = getApiUrl();
+
+// Debug log - always show in console to help diagnose
+console.log('🔍 API Configuration:', {
+  'REACT_APP_API_URL (raw)': process.env.REACT_APP_API_URL,
+  'NODE_ENV': process.env.NODE_ENV,
+  'Final API_URL': API_URL,
+  'Current hostname': window.location.hostname
+});
 
 // Create axios instance with auth header
 const authAxios = axios.create({

