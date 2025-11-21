@@ -1,27 +1,38 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const GalleryImage = require('../models/GalleryImage');
 
 // Get all gallery images
 router.get('/', async (req, res) => {
   try {
+    // Check if MongoDB is connected
+    if (!mongoose.connection || mongoose.connection.readyState !== 1) {
+      console.log('MongoDB not connected, returning empty array');
+      return res.json([]); // Return empty array if DB not connected
+    }
     const images = await GalleryImage.find().sort({ createdAt: -1 });
     res.json(images);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching gallery images:', error.message);
+    // Always return empty array instead of 500 error
+    return res.json([]);
   }
 });
 
 // Add a new gallery image
 router.post('/', async (req, res) => {
-  const image = new GalleryImage({
-    url: req.body.url,
-    title: req.body.title,
-    description: req.body.description,
-    category: req.body.category
-  });
-
   try {
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Veritabanı bağlantısı yok. Lütfen MongoDB yapılandırmasını kontrol edin.' });
+    }
+    const image = new GalleryImage({
+      url: req.body.url,
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category
+    });
     const newImage = await image.save();
     res.status(201).json(newImage);
   } catch (error) {
@@ -32,6 +43,9 @@ router.post('/', async (req, res) => {
 // Delete a gallery image
 router.delete('/:id', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
+    }
     await GalleryImage.findByIdAndDelete(req.params.id);
     res.json({ message: 'Görsel başarıyla silindi' });
   } catch (error) {
@@ -42,6 +56,9 @@ router.delete('/:id', async (req, res) => {
 // Update a gallery image
 router.put('/:id', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
+    }
     const updates = {
       url: req.body.url,
       title: req.body.title,

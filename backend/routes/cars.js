@@ -1,32 +1,43 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Car = require('../models/Car');
 
 // Get all cars
 router.get('/', async (req, res) => {
   try {
+    // Check if MongoDB is connected
+    if (!mongoose.connection || mongoose.connection.readyState !== 1) {
+      console.log('MongoDB not connected, returning empty array');
+      return res.json([]); // Return empty array if DB not connected
+    }
     const cars = await Car.find().sort({ createdAt: -1 });
     res.json(cars);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching cars:', error.message);
+    // Always return empty array instead of 500 error
+    return res.json([]);
   }
 });
 
 // Add a new car
 router.post('/', async (req, res) => {
-  const car = new Car({
-    title: req.body.title,
-    image: req.body.image,
-    year: req.body.year,
-    km: req.body.km,
-    price: req.body.price,
-    details: req.body.details,
-    color: req.body.color,
-    fuelType: req.body.fuelType,
-    transmission: req.body.transmission
-  });
-
   try {
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Veritabanı bağlantısı yok. Lütfen MongoDB yapılandırmasını kontrol edin.' });
+    }
+    const car = new Car({
+      title: req.body.title,
+      image: req.body.image,
+      year: req.body.year,
+      km: req.body.km,
+      price: req.body.price,
+      details: req.body.details,
+      color: req.body.color,
+      fuelType: req.body.fuelType,
+      transmission: req.body.transmission
+    });
     const newCar = await car.save();
     res.status(201).json(newCar);
   } catch (error) {
@@ -37,6 +48,9 @@ router.post('/', async (req, res) => {
 // Delete a car
 router.delete('/:id', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
+    }
     await Car.findByIdAndDelete(req.params.id);
     res.json({ message: 'Araç başarıyla silindi' });
   } catch (error) {
@@ -47,6 +61,9 @@ router.delete('/:id', async (req, res) => {
 // Update a car
 router.put('/:id', async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
+    }
     const updates = {
       title: req.body.title,
       image: req.body.image,
