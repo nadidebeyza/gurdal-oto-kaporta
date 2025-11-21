@@ -9,6 +9,10 @@ const carSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  photos: {
+    type: [String],
+    default: []
+  },
   year: {
     type: String,
     required: true

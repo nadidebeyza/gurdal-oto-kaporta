@@ -53,6 +53,7 @@ router.post('/', async (req, res) => {
     const car = new Car({
       title: req.body.title,
       image: req.body.image,
+      photos: Array.isArray(req.body.photos) ? req.body.photos : [],
       year: req.body.year,
       km: req.body.km,
       price: req.body.price,
@@ -92,6 +93,7 @@ router.put('/:id', async (req, res) => {
     const updates = {
       title: req.body.title,
       image: req.body.image,
+      photos: Array.isArray(req.body.photos) ? req.body.photos : [],
       year: req.body.year,
       km: req.body.km,
       price: req.body.price,

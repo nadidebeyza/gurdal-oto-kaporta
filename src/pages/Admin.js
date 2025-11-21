@@ -295,6 +295,62 @@ const StatusMessage = styled.div`
   font-weight: 600;
 `;
 
+const PhotoListContainer = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+`;
+
+const PhotoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+`;
+
+const PhotoUrl = styled.span`
+  flex: 1;
+  font-size: 0.9rem;
+  color: #666;
+  word-break: break-all;
+`;
+
+const SmallButton = styled.button`
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+`;
+
+const AddPhotoButton = styled(SmallButton)`
+  background: #4ade80;
+  color: white;
+  &:hover {
+    background: #22c55e;
+  }
+`;
+
+const RemovePhotoButton = styled(SmallButton)`
+  background: #f87171;
+  color: white;
+  &:hover {
+    background: #ef4444;
+  }
+`;
+
+const PhotoInputGroup = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
 const ImagePreview = styled.img`
   max-width: 150px;
   max-height: 150px;
@@ -313,8 +369,7 @@ const emptyCarForm = {
   color: '',
   fuelType: '',
   transmission: '',
-  imageFile: null,
-  imageUrl: ''
+  imageFiles: [] // Array of image files
 };
 
 const emptyGalleryForm = {
@@ -342,6 +397,13 @@ function Admin() {
     setCarForm(emptyCarForm);
     setCarImagePreview('');
     setEditingCarId(null);
+  };
+
+  const removeImage = (index) => {
+    setCarForm({
+      ...carForm,
+      imageFiles: carForm.imageFiles.filter((_, i) => i !== index)
+    });
   };
 
   const resetGalleryForm = () => {
@@ -385,21 +447,21 @@ function Admin() {
     e.preventDefault();
     setStatus(null);
     const isEditing = Boolean(editingCarId);
-    if (!isEditing && !carForm.imageFile) {
-      setStatus({ type: 'error', message: 'Lütfen araç için bir görsel seçin.' });
+    if (!isEditing && (!carForm.imageFiles || carForm.imageFiles.length === 0)) {
+      setStatus({ type: 'error', message: 'Lütfen en az bir görsel seçin.' });
       return;
     }
     try {
-      let uploadedImageUrl = carForm.imageUrl;
-
-      if (carForm.imageFile) {
+      // Upload all images
+      const uploadedUrls = [];
+      for (const file of carForm.imageFiles) {
         const imageFormData = new FormData();
-        imageFormData.append('image', carForm.imageFile);
+        imageFormData.append('image', file);
         const uploadResponse = await api.uploadImage(imageFormData);
-        uploadedImageUrl = uploadResponse.data.url;
+        uploadedUrls.push(uploadResponse.data.url);
       }
 
-      if (!uploadedImageUrl) {
+      if (uploadedUrls.length === 0) {
         setStatus({ type: 'error', message: 'Görsel yüklenemedi.' });
         return;
       }
@@ -413,7 +475,8 @@ function Admin() {
         color: carForm.color,
         fuelType: carForm.fuelType,
         transmission: carForm.transmission,
-        image: uploadedImageUrl
+        image: uploadedUrls[0], // First image as main
+        photos: uploadedUrls // All images in photos array
       };
 
       if (isEditing) {
@@ -437,8 +500,8 @@ function Admin() {
     e.preventDefault();
     setStatus(null);
     const isEditing = Boolean(editingGalleryId);
-    if (!isEditing && !galleryForm.imageFile) {
-      setStatus({ type: 'error', message: 'Lütfen galeri için bir görsel seçin.' });
+    if (!isEditing && !galleryForm.imageFile && !galleryForm.imageUrl) {
+      setStatus({ type: 'error', message: 'Lütfen galeri için bir görsel URL girin veya dosya seçin.' });
       return;
     }
     try {
@@ -494,6 +557,11 @@ function Admin() {
   };
 
   const handleEditCar = (car) => {
+    // Get photos array, fallback to empty array or single image
+    const carPhotos = Array.isArray(car.photos) && car.photos.length > 0 
+      ? car.photos 
+      : (car.image ? [car.image] : []);
+    
     setCarForm({
       title: car.title || '',
       year: car.year || '',
@@ -503,10 +571,9 @@ function Admin() {
       color: car.color || '',
       fuelType: car.fuelType || '',
       transmission: car.transmission || '',
-      imageFile: null,
-      imageUrl: car.image || ''
+      imageFiles: [] // Files will be empty when editing, user can add new ones
     });
-    setCarImagePreview(car.image || '');
+    setCarImagePreview(car.image || (carPhotos[0] || ''));
     setEditingCarId(car._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -566,14 +633,34 @@ function Admin() {
             <Input
               type="file"
               accept="image/*"
+              multiple
               onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setCarForm({ ...carForm, imageFile: file });
-                setCarImagePreview(file ? URL.createObjectURL(file) : '');
+                const files = Array.from(e.target.files || []);
+                setCarForm({ ...carForm, imageFiles: [...carForm.imageFiles, ...files] });
+                if (files.length > 0) {
+                  setCarImagePreview(URL.createObjectURL(files[0]));
+                }
               }}
-              required={!editingCarId}
             />
-            {carImagePreview && <ImagePreview src={carImagePreview} alt="Araç görsel önizleme" />}
+            {carForm.imageFiles && carForm.imageFiles.length > 0 && (
+              <PhotoListContainer>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.5rem', marginTop: '1rem' }}>
+                  {carForm.imageFiles.map((file, index) => (
+                    <div key={index} style={{ position: 'relative' }}>
+                      <ImagePreview src={URL.createObjectURL(file)} alt={`Görsel ${index + 1}`} />
+                      <RemovePhotoButton 
+                        type="button" 
+                        onClick={() => removeImage(index)}
+                        style={{ position: 'absolute', top: '5px', right: '5px', padding: '0.2rem 0.4rem' }}
+                      >
+                        <FaTrash />
+                      </RemovePhotoButton>
+                    </div>
+                  ))}
+                </div>
+              </PhotoListContainer>
+            )}
+            
             <TextArea placeholder="Detaylar" value={carForm.details} onChange={e => setCarForm({ ...carForm, details: e.target.value })} />
             <FormActions>
               <SubmitButton type="submit">
@@ -640,14 +727,21 @@ function Admin() {
               <option value="Diğer">Diğer</option>
             </Select>
             <Input
+              placeholder="Görsel URL (veya dosya seçin)"
+              value={galleryForm.imageUrl}
+              onChange={e => {
+                setGalleryForm({ ...galleryForm, imageUrl: e.target.value, imageFile: null });
+                setGalleryImagePreview(e.target.value || '');
+              }}
+            />
+            <Input
               type="file"
               accept="image/*"
               onChange={(e) => {
                 const file = e.target.files?.[0] || null;
-                setGalleryForm({ ...galleryForm, imageFile: file });
+                setGalleryForm({ ...galleryForm, imageFile: file, imageUrl: '' });
                 setGalleryImagePreview(file ? URL.createObjectURL(file) : '');
               }}
-              required={!editingGalleryId}
             />
             {galleryImagePreview && <ImagePreview src={galleryImagePreview} alt="Galeri görsel önizleme" />}
             <TextArea placeholder="Açıklama" value={galleryForm.description} onChange={e => setGalleryForm({ ...galleryForm, description: e.target.value })} />
