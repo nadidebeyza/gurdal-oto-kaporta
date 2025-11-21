@@ -1,73 +1,84 @@
 # Gürdal Oto Kaporta Website
 
-Car repair and sales website for Gürdal Oto Kaporta.
+> Not: macOS 14+ sürümlerinde 5000 portu sistem servisleri tarafından
+> rezerve edildiğinden backend varsayılan olarak **5001** portunda çalışır.
+> Geliştirme ortamında backend'i 5001, frontend'i 3000 portunda
+> çalıştırdığınızdan emin olun.
 
-## Setup
+## Deployment Guide
+
+### Backend Deployment (Heroku)
+
+1. Create a Heroku account and install the Heroku CLI
+2. Login to Heroku:
+   ```bash
+   heroku login
+   ```
+3. Create a new Heroku app:
+   ```bash
+   heroku create gurdal-oto-backend
+   ```
+4. Add environment variables to Heroku:
+   ```bash
+   heroku config:set MONGODB_URI=your_mongodb_uri
+   heroku config:set JWT_SECRET=your_jwt_secret
+   heroku config:set CLOUDINARY_CLOUD_NAME=your_cloud_name
+   heroku config:set CLOUDINARY_API_KEY=your_api_key
+   heroku config:set CLOUDINARY_API_SECRET=your_api_secret
+   heroku config:set EMAIL_USER=your_email
+   heroku config:set EMAIL_PASS=your_email_password
+   ```
+5. Deploy to Heroku:
+   ```bash
+   git push heroku main
+   ```
+
+### Frontend Deployment (Netlify)
+
+1. Create a Netlify account
+2. Install Netlify CLI:
+   ```bash
+   npm install -g netlify-cli
+   ```
+3. Login to Netlify:
+   ```bash
+   netlify login
+   ```
+4. Initialize Netlify:
+   ```bash
+   netlify init
+   ```
+5. Set environment variables in Netlify dashboard:
+   - REACT_APP_API_URL: your_backend_url
+
+6. Deploy:
+   ```bash
+   npm run build
+   netlify deploy --prod
+   ```
+
+## Development
 
 ### Backend
-
-1. Navigate to backend directory:
+1. Install dependencies:
    ```bash
    cd backend
-   ```
-
-2. Install dependencies:
-   ```bash
    npm install
    ```
-
-3. Create `.env` file (copy from `.env.example`):
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Update `.env` with your configuration:
-   - `MONGODB_URI`: Your MongoDB connection string
-   - `JWT_SECRET`: A strong random string for JWT tokens
-   - `ADMIN_USERNAME`: Admin username
-   - `ADMIN_PASSWORD`: Admin password
-   - `CLIENT_URL`: Frontend URL(s) for CORS
-
-5. Run the server:
+2. Create .env file with required variables
+3. Run development server:
    ```bash
    PORT=5001 npm run dev
    ```
 
 ### Frontend
-
 1. Install dependencies:
    ```bash
+   cd frontend
    npm install
    ```
-
-2. Start development server:
+2. Create .env file with required variables
+3. Run development server:
    ```bash
    npm start
-   ```
-
-## Environment Variables
-
-See `backend/.env.example` for required environment variables.
-
-**Important:** Never commit `.env` files to the repository. All sensitive information must be stored in environment variables.
-
-## Deployment
-
-### Backend (Render)
-
-1. Set Root Directory to `backend`
-2. Build Command: `npm install`
-3. Start Command: `npm start`
-4. Add environment variables in Render dashboard
-
-### Frontend (Netlify)
-
-1. Set `REACT_APP_API_URL` environment variable to your backend URL
-2. Build will run automatically on push
-
-## Security
-
-- All credentials are stored in environment variables
-- Never hardcode passwords or secrets in the code
-- Use strong, random values for `JWT_SECRET`
-- Keep `.env` files out of version control
+   ``` 
