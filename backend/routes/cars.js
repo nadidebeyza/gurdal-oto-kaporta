@@ -1,11 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const Car = require('../models/Car');
+
+// Safely require Car model
+let Car;
+try {
+  Car = require('../models/Car');
+} catch (error) {
+  console.log('Car model not available:', error.message);
+}
 
 // Get all cars
 router.get('/', async (req, res) => {
   try {
+    // Check if Car model is available
+    if (!Car) {
+      console.log('Car model not available, returning empty array');
+      return res.json([]);
+    }
     // Check if MongoDB is connected
     if (!mongoose.connection || mongoose.connection.readyState !== 1) {
       console.log('MongoDB not connected, returning empty array');
@@ -23,8 +35,12 @@ router.get('/', async (req, res) => {
 // Add a new car
 router.post('/', async (req, res) => {
   try {
+    // Check if Car model is available
+    if (!Car) {
+      return res.status(503).json({ message: 'Veritabanı modeli yüklenemedi.' });
+    }
     // Check if MongoDB is connected
-    if (mongoose.connection.readyState !== 1) {
+    if (!mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok. Lütfen MongoDB yapılandırmasını kontrol edin.' });
     }
     const car = new Car({
@@ -48,7 +64,7 @@ router.post('/', async (req, res) => {
 // Delete a car
 router.delete('/:id', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!Car || !mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
     }
     await Car.findByIdAndDelete(req.params.id);
@@ -61,7 +77,7 @@ router.delete('/:id', async (req, res) => {
 // Update a car
 router.put('/:id', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!Car || !mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
     }
     const updates = {

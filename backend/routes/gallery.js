@@ -1,11 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const GalleryImage = require('../models/GalleryImage');
+
+// Safely require GalleryImage model
+let GalleryImage;
+try {
+  GalleryImage = require('../models/GalleryImage');
+} catch (error) {
+  console.log('GalleryImage model not available:', error.message);
+}
 
 // Get all gallery images
 router.get('/', async (req, res) => {
   try {
+    // Check if GalleryImage model is available
+    if (!GalleryImage) {
+      console.log('GalleryImage model not available, returning empty array');
+      return res.json([]);
+    }
     // Check if MongoDB is connected
     if (!mongoose.connection || mongoose.connection.readyState !== 1) {
       console.log('MongoDB not connected, returning empty array');
@@ -23,8 +35,12 @@ router.get('/', async (req, res) => {
 // Add a new gallery image
 router.post('/', async (req, res) => {
   try {
+    // Check if GalleryImage model is available
+    if (!GalleryImage) {
+      return res.status(503).json({ message: 'Veritabanı modeli yüklenemedi.' });
+    }
     // Check if MongoDB is connected
-    if (mongoose.connection.readyState !== 1) {
+    if (!mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok. Lütfen MongoDB yapılandırmasını kontrol edin.' });
     }
     const image = new GalleryImage({
@@ -43,7 +59,7 @@ router.post('/', async (req, res) => {
 // Delete a gallery image
 router.delete('/:id', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!GalleryImage || !mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
     }
     await GalleryImage.findByIdAndDelete(req.params.id);
@@ -56,7 +72,7 @@ router.delete('/:id', async (req, res) => {
 // Update a gallery image
 router.put('/:id', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!GalleryImage || !mongoose.connection || mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
     }
     const updates = {
