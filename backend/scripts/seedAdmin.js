@@ -7,11 +7,19 @@ dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const User = require('../models/User');
 
-const ADMIN_USERNAME = 'eyyüp';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'N7X4QD';
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 async function seed() {
-  const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/gurdal-oto';
+  if (!ADMIN_PASSWORD) {
+    console.error('ERROR: ADMIN_PASSWORD environment variable is required');
+    process.exit(1);
+  }
+  const mongoUri = process.env.MONGODB_URI;
+  if (!mongoUri) {
+    console.error('ERROR: MONGODB_URI environment variable is required');
+    process.exit(1);
+  }
 
   try {
     await mongoose.connect(mongoUri, {
@@ -36,7 +44,7 @@ async function seed() {
     }
 
     console.log(`Admin username: ${ADMIN_USERNAME}`);
-    console.log(`Admin password: ${ADMIN_PASSWORD}`);
+    console.log('Admin user created/updated successfully');
   } catch (error) {
     console.error('Failed to seed admin user:', error);
   } finally {

@@ -9,11 +9,17 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     
-    // Check hardcoded admin credentials first
-    if (username === 'eyyüp' && password === 'N7X4QD') {
-      const jwtSecret = process.env.JWT_SECRET || 'gurdal_oto_2024_secure_jwt_key_7x9K2mP5qR8vW3nT6yB1cD4fG7hJ0kL';
+    // Check admin credentials from environment variables
+    const adminUsername = process.env.ADMIN_USERNAME;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    
+    if (adminUsername && adminPassword && username === adminUsername && password === adminPassword) {
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        return res.status(500).json({ message: 'Server configuration error' });
+      }
       const token = jwt.sign(
-        { id: 'admin', username: 'eyyüp', role: 'admin' },
+        { id: 'admin', username: adminUsername, role: 'admin' },
         jwtSecret,
         { expiresIn: '24h' }
       );
@@ -33,7 +39,10 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ message: 'Geçersiz kullanıcı adı veya şifre' });
       }
 
-      const jwtSecret = process.env.JWT_SECRET || 'gurdal_oto_2024_secure_jwt_key_7x9K2mP5qR8vW3nT6yB1cD4fG7hJ0kL';
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        return res.status(500).json({ message: 'Server configuration error' });
+      }
       const token = jwt.sign(
         { id: user._id, role: user.role },
         jwtSecret,
@@ -53,9 +62,10 @@ router.post('/login', async (req, res) => {
 // Get current user
 router.get('/me', auth, async (req, res) => {
   try {
-    // If it's the hardcoded admin user, return admin info directly
-    if (req.user.id === 'admin' || req.user.username === 'eyyüp') {
-      return res.json({ id: 'admin', username: 'eyyüp', role: 'admin' });
+    // If it's the admin user, return admin info directly
+    const adminUsername = process.env.ADMIN_USERNAME;
+    if (req.user.id === 'admin' || (adminUsername && req.user.username === adminUsername)) {
+      return res.json({ id: 'admin', username: adminUsername || 'admin', role: 'admin' });
     }
     
     // Otherwise try to get from database
