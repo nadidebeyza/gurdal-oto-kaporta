@@ -6,10 +6,19 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+const defaultOrigins = [
+  'http://localhost:3000',
+  'https://gurdalotokaporta.netlify.app',
+  'https://gurdalotokaporta.com',
+  'https://xn--grdalotokaporta-zvb.com'
+];
+
+const envOrigins = (process.env.CLIENT_URL || '')
   .split(',')
   .map(origin => origin.trim())
   .filter(Boolean);
+
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 const corsOptions = {
   origin: allowedOrigins,

@@ -8,7 +8,13 @@ import axios from 'axios';
 const DEFAULT_API_URL =
   process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5001/api';
 
-const API_URL = process.env.REACT_APP_API_URL || DEFAULT_API_URL;
+const normalizeApiUrl = (url) => {
+  if (!url) return url;
+  const trimmed = url.replace(/\/+$/, '');
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
+const API_URL = normalizeApiUrl(process.env.REACT_APP_API_URL) || DEFAULT_API_URL;
 
 // Create axios instance with auth header
 const authAxios = axios.create({
