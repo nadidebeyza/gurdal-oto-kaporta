@@ -20,7 +20,10 @@ router.post('/', async (req, res) => {
     year: req.body.year,
     km: req.body.km,
     price: req.body.price,
-    details: req.body.details
+    details: req.body.details,
+    color: req.body.color,
+    fuelType: req.body.fuelType,
+    transmission: req.body.transmission
   });
 
   try {
@@ -38,6 +41,37 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'Araç başarıyla silindi' });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Update a car
+router.put('/:id', async (req, res) => {
+  try {
+    const updates = {
+      title: req.body.title,
+      image: req.body.image,
+      year: req.body.year,
+      km: req.body.km,
+      price: req.body.price,
+      details: req.body.details,
+      color: req.body.color,
+      fuelType: req.body.fuelType,
+      transmission: req.body.transmission
+    };
+
+    const updatedCar = await Car.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCar) {
+      return res.status(404).json({ message: 'Araç bulunamadı' });
+    }
+
+    res.json(updatedCar);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 

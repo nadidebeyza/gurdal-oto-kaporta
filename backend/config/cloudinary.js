@@ -12,7 +12,16 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'gurdal-oto',
-    allowed_formats: ['jpg', 'jpeg', 'png']
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    transformation: [
+      {
+        width: 1600,
+        height: 900,
+        crop: 'fill',
+        gravity: 'auto',
+        quality: 'auto:good'
+      }
+    ]
   }
 });
 

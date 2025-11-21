@@ -25,6 +25,9 @@ const carSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  color: String,
+  fuelType: String,
+  transmission: String,
   createdAt: {
     type: Date,
     default: Date.now

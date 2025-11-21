@@ -39,4 +39,30 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Update a gallery image
+router.put('/:id', async (req, res) => {
+  try {
+    const updates = {
+      url: req.body.url,
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category
+    };
+
+    const updatedImage = await GalleryImage.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedImage) {
+      return res.status(404).json({ message: 'Görsel bulunamadı' });
+    }
+
+    res.json(updatedImage);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router; 

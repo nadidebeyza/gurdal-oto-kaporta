@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { api } from '../services/api';
 
 const accentColor = "#e63946";
 const fadeIn = keyframes`
@@ -49,10 +50,10 @@ const FilterContainer = styled.div`
 
 const CategoryButton = styled.button`
   padding: 0.8rem 1.5rem;
-  border: 2px solid ${props => props.active ? 'transparent' : accentColor};
+  border: 2px solid ${props => props.$active ? 'transparent' : accentColor};
   border-radius: 14px;
-  background: ${props => props.active ? `linear-gradient(90deg, #232526 0%, #414345 100%)` : '#fff'};
-  color: ${props => props.active ? '#fff' : accentColor};
+  background: ${props => props.$active ? `linear-gradient(90deg, #232526 0%, #414345 100%)` : '#fff'};
+  color: ${props => props.$active ? '#fff' : accentColor};
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -272,59 +273,9 @@ const NoResults = styled.div`
 `;
 
 function Gallery() {
-  // Use your stock images from the public folder
-  const images = [
-    {
-      _id: '1',
-      url: '/stock-repair-1.jpg',
-      title: 'Kaporta Onarımı',
-      description: 'Arka çamurluk düzeltme işlemi',
-      category: 'Kaporta'
-    },
-    {
-      _id: '2',
-      url: '/stock-repair-2.jpg',
-      title: 'Boyama',
-      description: 'Tampon boyama işlemi',
-      category: 'Boyama'
-    },
-    {
-      _id: '3',
-      url: '/stock-repair-3.jpg',
-      title: 'Çekici Hizmeti',
-      description: 'Aracın servise çekilmesi',
-      category: 'Çekici'
-    },
-    {
-      _id: '4',
-      url: '/stock-repair-4.jpg',
-      title: 'Hasar Tespiti',
-      description: 'Detaylı hasar inceleme süreci',
-      category: 'Diğer'
-    },
-    {
-      _id: '5',
-      url: '/stock-repair-5.jpg',
-      title: 'Kaporta Onarımı',
-      description: 'Kapı göçük düzeltme',
-      category: 'Kaporta'
-    },
-    {
-      _id: '6',
-      url: '/stock-repair-6.jpg',
-      title: 'Boyama',
-      description: 'Tavan boyama işlemi',
-      category: 'Boyama'
-    },
-    {
-      _id: '7',
-      url: '/stock-repair-7.jpg',
-      title: 'Çekici Hizmeti',
-      description: 'Kaza sonrası çekici hizmeti',
-      category: 'Çekici'
-    }
-  ];
-
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [showNotice, setShowNotice] = useState(true);
   const [filters, setFilters] = useState({
@@ -339,6 +290,21 @@ function Gallery() {
       category
     }));
   };
+
+  useEffect(() => {
+    const loadGallery = async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.getGalleryImages();
+        setImages(data);
+        setLoading(false);
+      } catch (err) {
+        setError('Galeri yüklenirken hata oluştu.');
+        setLoading(false);
+      }
+    };
+    loadGallery();
+  }, []);
 
   const filteredImages = images.filter(image => {
     const matchesCategory = filters.category === 'Tümü' || image.category === filters.category;
@@ -359,7 +325,7 @@ function Gallery() {
           </NoticeCard>
         </NoticeOverlay>
       )}
-      <GalleryContainer>
+    <GalleryContainer>
       <PageTitle>Galeri</PageTitle>
       <PageDescription>
         Gürdal Oto Kaporta'da gerçekleştirdiğimiz çalışmalardan örnekler.
@@ -370,7 +336,7 @@ function Gallery() {
         {categories.map(category => (
           <CategoryButton
             key={category}
-            active={filters.category === category}
+            $active={filters.category === category}
             onClick={() => handleCategoryChange(category)}
           >
             {category}
@@ -390,7 +356,14 @@ function Gallery() {
         </CategorySelectWrapper>
       </FilterContainer>
 
-      {filteredImages.length === 0 ? (
+      {loading ? (
+        <p>Galeri yükleniyor...</p>
+      ) : error ? (
+        <NoResults>
+          <h3>Hata</h3>
+          <p>{error}</p>
+        </NoResults>
+      ) : filteredImages.length === 0 ? (
         <NoResults>
           <h3>Sonuç bulunamadı</h3>
           <p>Lütfen farklı bir arama kriteri deneyin.</p>
@@ -419,7 +392,7 @@ function Gallery() {
           <CloseButton onClick={() => setSelectedImage(null)}>×</CloseButton>
         </Modal>
       )}
-      </GalleryContainer>
+    </GalleryContainer>
     </>
   );
 }

@@ -1,5 +1,10 @@
 # Gürdal Oto Kaporta Website
 
+> Not: macOS 14+ sürümlerinde 5000 portu sistem servisleri tarafından
+> rezerve edildiğinden backend varsayılan olarak **5001** portunda çalışır.
+> Geliştirme ortamında backend'i 5001, frontend'i 3000 portunda
+> çalıştırdığınızdan emin olun.
+
 ## Deployment Guide
 
 ### Backend Deployment (Heroku)
@@ -63,7 +68,7 @@
 2. Create .env file with required variables
 3. Run development server:
    ```bash
-   npm run dev
+   PORT=5001 npm run dev
    ```
 
 ### Frontend

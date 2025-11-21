@@ -14,24 +14,25 @@ import Gallery from './pages/Gallery';
 import Insurance from './pages/Insurance';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
+import Admin from './pages/Admin';
+import AdminLogin from './pages/AdminLogin';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   if (!token) {
-    return <Navigate to="/admin/login" />;
+    return <Navigate to="/giris" />;
   }
   return children;
 };
 
 const PublicLayout = () => (
-  <>
-    <Navbar />
+            <>
+              <Navbar />
     <Outlet />
-    <Footer />
-  </>
+              <Footer />
+            </>
 );
 
 const router = createBrowserRouter(
@@ -46,18 +47,23 @@ const router = createBrowserRouter(
         { path: '/sigorta-kasko', element: <Insurance /> },
         { path: '/hakkimizda', element: <About /> },
         { path: '/iletisim', element: <Contact /> },
+        { path: '/admin', element: <Admin /> },
       ],
     },
     {
+      path: '/giris',
+      element: <AdminLogin />,
+    },
+    {
       path: '/admin/login',
-      element: <Login />,
+      element: <Navigate to="/giris" replace />,
     },
     {
       path: '/admin/dashboard/*',
       element: (
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
       ),
     },
   ],

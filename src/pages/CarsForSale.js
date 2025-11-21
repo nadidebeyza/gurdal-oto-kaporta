@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 // import { useApi } from '../hooks/useApi';
 // import { api } from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
+import { api } from '../services/api';
 
 const accentColor = "#e63946";
 
@@ -353,39 +354,19 @@ const ContactText = styled.p`
   margin-bottom: 1rem;
 `;
 
+const getPhotoList = (car) => {
+  if (!car) return [];
+  if (Array.isArray(car.photos) && car.photos.length > 0) {
+    return car.photos.filter(Boolean);
+  }
+  return car.image ? [car.image] : [];
+};
+
 function CarsForSale() {
   // const { data: cars, loading, error, execute: loadCars } = useApi(api.getCars);
-  const [cars] = useState([
-    {
-      _id: '1',
-      image: '/car-sale-1.jpg',
-      title: 'Renault Clio',
-      year: 2018,
-      km: 45000,
-      details: 'Dizel, Otomatik',
-      price: '350.000 TL',
-      color: 'Beyaz',
-      fuelType: 'Dizel',
-      transmission: 'Otomatik',
-      photos: ['/car-sale-1.jpg', '/car-sale-1.jpg']
-    },
-    {
-      _id: '2',
-      image: '/car-sale-2.jpg',
-      title: 'Fiat Egea',
-      year: 2020,
-      km: 32000,
-      details: 'Benzinli, Manuel',
-      price: '420.000 TL',
-      color: 'Gri',
-      fuelType: 'Benzinli',
-      transmission: 'Manuel',
-      photos: ['/car-sale-2.jpg', '/car-sale-2.jpg']
-    }
-    // ...add more mock cars
-  ]);
-  const [loading] = useState(false);
-  const [error] = useState(null);
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filters] = useState({
     search: '',
     minPrice: '',
@@ -396,9 +377,20 @@ function CarsForSale() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showNotice, setShowNotice] = useState(true);
 
-  // useEffect(() => {
-  //   loadCars();
-  // }, [loadCars]);
+  useEffect(() => {
+    const loadCars = async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.getCars();
+        setCars(data);
+        setLoading(false);
+      } catch (err) {
+        setError('Araç listesi yüklenirken hata oluştu.');
+        setLoading(false);
+      }
+    };
+    loadCars();
+  }, []);
 
   const filteredCars = cars?.filter(car => {
     const matchesSearch = car.title.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -406,25 +398,34 @@ function CarsForSale() {
     return matchesSearch;
   });
 
+  const selectedCarPhotos = getPhotoList(selectedCar);
+
   const handleNextImage = () => {
-    if (selectedCar) {
-      const nextIndex = (currentImageIndex + 1) % selectedCar.photos.length;
-      setCurrentImageIndex(nextIndex);
-      setSelectedImage(selectedCar.photos[nextIndex]);
-    }
+    const totalPhotos = selectedCarPhotos.length;
+    if (!selectedCar || totalPhotos === 0) return;
+    const nextIndex = (currentImageIndex + 1) % totalPhotos;
+    setCurrentImageIndex(nextIndex);
+    setSelectedImage(selectedCarPhotos[nextIndex]);
   };
 
   const handlePrevImage = () => {
-    if (selectedCar) {
-      const prevIndex = (currentImageIndex - 1 + selectedCar.photos.length) % selectedCar.photos.length;
-      setCurrentImageIndex(prevIndex);
-      setSelectedImage(selectedCar.photos[prevIndex]);
-    }
+    const totalPhotos = selectedCarPhotos.length;
+    if (!selectedCar || totalPhotos === 0) return;
+    const prevIndex = (currentImageIndex - 1 + totalPhotos) % totalPhotos;
+    setCurrentImageIndex(prevIndex);
+    setSelectedImage(selectedCarPhotos[prevIndex]);
   };
 
   const handleImageClick = (photo, index) => {
+    if (!photo) return;
     setCurrentImageIndex(index);
     setSelectedImage(photo);
+  };
+
+  const handleSelectCar = (car) => {
+    setSelectedCar(car);
+    setSelectedImage(null);
+    setCurrentImageIndex(0);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -444,11 +445,13 @@ function CarsForSale() {
           </NoticeCard>
         </NoticeOverlay>
       )}
-      <CarsContainer>
+    <CarsContainer>
       <PageTitle>Satılık Araçlar</PageTitle>
       
       <CarGrid>
-        {filteredCars?.map((car) => (
+        {filteredCars?.map((car) => {
+          const carPhotos = getPhotoList(car);
+          return (
           <CarCard key={car._id}>
             <CarImage src={car.image} alt={car.title} />
             <CarInfo>
@@ -461,18 +464,18 @@ function CarsForSale() {
                 {car.transmission && <Attribute>Vites: {car.transmission}</Attribute>}
               </CarAttributes>
               <CarDetails>{car.details}</CarDetails>
-              <Price>0 ₺</Price>
-              {car.photos && car.photos.length > 1 && (
+              <Price>{car.price || '0 ₺'}</Price>
+              {carPhotos.length > 1 && (
                 <PhotosContainer>
-                  {car.photos.map((photo, idx) => (
+                  {carPhotos.map((photo, idx) => (
                     <PhotoThumb key={idx} src={photo} alt={`Fotoğraf ${idx+1}`} />
                   ))}
                 </PhotosContainer>
               )}
-              <DetailsButton onClick={() => setSelectedCar(car)}>Detayları Gör</DetailsButton>
+              <DetailsButton onClick={() => handleSelectCar(car)}>Detayları Gör</DetailsButton>
             </CarInfo>
           </CarCard>
-        ))}
+        )})}
       </CarGrid>
 
       <ContactSection>
@@ -495,7 +498,7 @@ function CarsForSale() {
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <ModalTitle>{selectedCar.title}</ModalTitle>
             <ModalImages>
-              {selectedCar.photos.map((photo, idx) => (
+              {selectedCarPhotos.map((photo, idx) => (
                 <ModalImage 
                   key={idx} 
                   src={photo} 
@@ -526,9 +529,9 @@ function CarsForSale() {
                   <span>Vites:</span> {selectedCar.transmission}
                 </ModalAttribute>
               )}
-            <ModalAttribute>
+              <ModalAttribute>
               <span>Fiyat:</span> 0 ₺
-            </ModalAttribute>
+              </ModalAttribute>
               <ModalAttribute>
                 <span>Detaylar:</span> {selectedCar.details}
               </ModalAttribute>
@@ -566,7 +569,7 @@ function CarsForSale() {
           <CloseButton onClick={() => setSelectedImage(null)}>×</CloseButton>
         </FullSizeModal>
       )}
-      </CarsContainer>
+    </CarsContainer>
     </>
   );
 }
