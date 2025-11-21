@@ -6,9 +6,13 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-const ALLOWED_ORIGIN = process.env.CLIENT_URL || 'http://localhost:3000';
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
 const corsOptions = {
-  origin: ALLOWED_ORIGIN,
+  origin: allowedOrigins,
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -17,7 +21,10 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  const requestOrigin = req.headers.origin;
+  if (allowedOrigins.includes(requestOrigin)) {
+    res.header('Access-Control-Allow-Origin', requestOrigin);
+  }
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   if (req.method === 'OPTIONS') {

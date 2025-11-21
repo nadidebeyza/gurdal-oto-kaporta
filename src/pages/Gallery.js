@@ -277,7 +277,7 @@ function Gallery() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [showNotice, setShowNotice] = useState(true);
+  const [showNotice, setShowNotice] = useState(false);
   const [filters, setFilters] = useState({
     category: 'Tümü'
   });
@@ -296,7 +296,7 @@ function Gallery() {
       try {
         setLoading(true);
         const { data } = await api.getGalleryImages();
-        setImages(data);
+        setImages(Array.isArray(data) ? data : []);
         setLoading(false);
       } catch (err) {
         setError('Galeri yüklenirken hata oluştu.');
@@ -306,25 +306,19 @@ function Gallery() {
     loadGallery();
   }, []);
 
-  const filteredImages = images.filter(image => {
-    const matchesCategory = filters.category === 'Tümü' || image.category === filters.category;
+  const imageList = Array.isArray(images) ? images : [];
+
+  const filteredImages = imageList.filter(image => {
+    if (!image || typeof image !== 'object') {
+      return false;
+    }
+    const categoryValue = typeof image.category === 'string' ? image.category : '';
+    const matchesCategory = filters.category === 'Tümü' || categoryValue === filters.category;
     return matchesCategory;
   });
 
   return (
     <>
-      {showNotice && (
-        <NoticeOverlay>
-          <NoticeCard>
-            <h3>Çalışmalar Devam Ediyor</h3>
-            <p>
-              Bu sayfa üzerinde çalışmaya devam ediyoruz. Kısa sürede güncelleyeceğiz.
-              Arka plandaki içerikleri incelemeye devam edebilirsiniz.
-            </p>
-            <NoticeButton onClick={() => setShowNotice(false)}>Anladım</NoticeButton>
-          </NoticeCard>
-        </NoticeOverlay>
-      )}
     <GalleryContainer>
       <PageTitle>Galeri</PageTitle>
       <PageDescription>

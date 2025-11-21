@@ -375,14 +375,14 @@ function CarsForSale() {
   const [selectedCar, setSelectedCar] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showNotice, setShowNotice] = useState(true);
+  const [showNotice, setShowNotice] = useState(false);
 
   useEffect(() => {
     const loadCars = async () => {
       try {
         setLoading(true);
         const { data } = await api.getCars();
-        setCars(data);
+        setCars(Array.isArray(data) ? data : []);
         setLoading(false);
       } catch (err) {
         setError('Araç listesi yüklenirken hata oluştu.');
@@ -392,9 +392,15 @@ function CarsForSale() {
     loadCars();
   }, []);
 
-  const filteredCars = cars?.filter(car => {
-    const matchesSearch = car.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-                         car.details.toLowerCase().includes(filters.search.toLowerCase());
+  const carList = Array.isArray(cars) ? cars : [];
+
+  const safeText = (value) => (typeof value === 'string' ? value : '');
+
+  const filteredCars = carList.filter(car => {
+    const title = safeText(car.title).toLowerCase();
+    const details = safeText(car.details).toLowerCase();
+    const searchTerm = safeText(filters.search).toLowerCase();
+    const matchesSearch = title.includes(searchTerm) || details.includes(searchTerm);
     return matchesSearch;
   });
 
@@ -433,18 +439,6 @@ function CarsForSale() {
 
   return (
     <>
-      {showNotice && (
-        <NoticeOverlay>
-          <NoticeCard>
-            <h3>Çalışmalar Devam Ediyor</h3>
-            <p>
-              Bu sayfa üzerinde çalışmaya devam ediyoruz. Kısa sürede güncelleyeceğiz.
-              Arka plandaki içerikleri incelemeye devam edebilirsiniz.
-            </p>
-            <NoticeButton onClick={() => setShowNotice(false)}>Anladım</NoticeButton>
-          </NoticeCard>
-        </NoticeOverlay>
-      )}
     <CarsContainer>
       <PageTitle>Satılık Araçlar</PageTitle>
       
