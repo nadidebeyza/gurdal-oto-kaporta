@@ -537,16 +537,29 @@ function Admin() {
       for (const url of uploadedUrls) {
         try {
           const galleryImageData = {
-            title: galleryForm.title,
-            description: galleryForm.description,
-            category: galleryForm.category,
+            title: galleryForm.title || '',
+            description: galleryForm.description || '',
+            category: galleryForm.category || 'Diğer',
             url: url,
             processId: processId // Aynı işlem için aynı processId
           };
+          
+          // Validation kontrolü
+          if (!galleryImageData.title || !galleryImageData.url) {
+            console.error('Missing required fields:', galleryImageData);
+            throw new Error('Başlık ve görsel URL zorunludur.');
+          }
+          
           await api.addGalleryImage(galleryImageData);
           successCount++;
         } catch (error) {
           console.error('Error adding gallery image:', error);
+          console.error('Error response:', error.response?.data);
+          console.error('Gallery image data:', {
+            title: galleryForm.title,
+            category: galleryForm.category,
+            url: url
+          });
           errorCount++;
         }
       }

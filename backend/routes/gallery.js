@@ -41,9 +41,17 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     // Validate required fields
-    if (!req.body.url || !req.body.title) {
+    if (!req.body.url) {
+      console.error('Missing URL in request:', req.body);
       return res.status(400).json({ 
-        message: 'Lütfen görsel URL ve başlık alanlarını doldurun.' 
+        message: 'Görsel URL eksik. Lütfen görsel URL alanını doldurun.' 
+      });
+    }
+    
+    if (!req.body.title) {
+      console.error('Missing title in request:', req.body);
+      return res.status(400).json({ 
+        message: 'Başlık eksik. Lütfen başlık alanını doldurun.' 
       });
     }
 
@@ -81,18 +89,41 @@ router.post('/', async (req, res) => {
       return res.status(503).json({ message: 'Veritabanı modeli yüklenemedi.' });
     }
 
+    // Category validation
+    const validCategories = ['Kaporta', 'Boyama', 'Kaporta & Boya Onarım', 'Çekici', 'Diğer'];
+    const category = req.body.category || 'Diğer';
+    
+    if (!validCategories.includes(category)) {
+      console.error('Invalid category:', category);
+      return res.status(400).json({ 
+        message: `Geçersiz kategori: ${category}. Geçerli kategoriler: ${validCategories.join(', ')}` 
+      });
+    }
+
     const image = new GalleryImage({
       url: req.body.url,
       title: req.body.title,
-      description: req.body.description,
-      category: req.body.category || 'Diğer',
-      processId: req.body.processId // Aynı işlem için gruplama
+      description: req.body.description || '',
+      category: category,
+      processId: req.body.processId || null // Aynı işlem için gruplama
     });
+    
     const newImage = await image.save();
     res.status(201).json(newImage);
   } catch (error) {
     console.error('Error saving gallery image:', error);
-    const errorMessage = error.message || 'Galeri görseli kaydedilirken hata oluştu.';
+    console.error('Request body:', req.body);
+    console.error('Error details:', error.errors || error.message);
+    
+    let errorMessage = 'Galeri görseli kaydedilirken hata oluştu.';
+    
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(e => e.message).join(', ');
+      errorMessage = `Validation hatası: ${validationErrors}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     res.status(400).json({ message: errorMessage });
   }
 });
