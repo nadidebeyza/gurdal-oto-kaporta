@@ -37,6 +37,7 @@ const CarCard = styled.div`
   box-shadow: 0 1px 6px rgba(34,34,59,0.18);
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-5px) scale(1.03);
@@ -219,11 +220,16 @@ const FullSizeModal = styled(Modal)`
 `;
 
 const FullSizeImage = styled.img`
-  max-width: 90%;
-  max-height: 90vh;
+  max-width: calc(100vw - 120px);
+  max-height: calc(100vh - 40px);
+  width: auto;
+  height: auto;
   object-fit: contain;
+  object-position: center;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(230,57,70,0.18);
+  display: block;
+  margin: 0 auto;
 `;
 
 const NavButton = styled.button`
@@ -393,7 +399,7 @@ function CarsForSale() {
         {filteredCars?.map((car) => {
           const carPhotos = getPhotoList(car);
           return (
-          <CarCard key={car._id}>
+          <CarCard key={car._id} onClick={() => handleSelectCar(car)}>
             <CarImage src={car.image} alt={car.title} />
             <CarInfo>
               <CarTitle>{car.title}</CarTitle>
@@ -415,7 +421,7 @@ function CarsForSale() {
                   ))}
                 </PhotosContainer>
               )}
-              <DetailsButton onClick={() => handleSelectCar(car)}>Detayları Gör</DetailsButton>
+              <DetailsButton onClick={(e) => { e.stopPropagation(); handleSelectCar(car); }}>Detayları Gör</DetailsButton>
             </CarInfo>
           </CarCard>
         )})}

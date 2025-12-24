@@ -39,15 +39,9 @@ try {
       params: {
         folder: 'gurdal-oto',
         allowed_formats: ['jpg', 'jpeg', 'png'],
-        transformation: [
-          {
-            width: 1600,
-            height: 900,
-            crop: 'fill',
-            gravity: 'auto',
-            quality: 'auto:good'
-          }
-        ]
+        // Orijinal boyutları korumak için transformation kaldırıldı
+        // Sadece kalite optimizasyonu yapılabilir (isteğe bağlı)
+        // transformation: [{ quality: 'auto:good' }]
       }
     });
     upload = multer({ storage: storage });
