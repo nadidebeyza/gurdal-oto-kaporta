@@ -398,14 +398,16 @@ function CarsForSale() {
             <CarInfo>
               <CarTitle>{car.title}</CarTitle>
               <CarAttributes>
-                <Attribute>Yıl: {car.year}</Attribute>
-                <Attribute>Km: {car.km}</Attribute>
-                {car.color && <Attribute>Renk: {car.color}</Attribute>}
-                {car.fuelType && <Attribute>Yakıt: {car.fuelType}</Attribute>}
-                {car.transmission && <Attribute>Vites: {car.transmission}</Attribute>}
+                {car.brand && car.brand !== '0' && <Attribute>Marka: {car.brand}</Attribute>}
+                {car.condition && car.condition !== '0' && <Attribute>Durum: {car.condition}</Attribute>}
+                {car.year && car.year !== '0' && <Attribute>Yıl: {car.year}</Attribute>}
+                {car.km && car.km !== '0' && <Attribute>Km: {car.km}</Attribute>}
+                {car.color && car.color !== '0' && <Attribute>Renk: {car.color}</Attribute>}
+                {car.fuelType && car.fuelType !== '0' && <Attribute>Yakıt: {car.fuelType}</Attribute>}
+                {car.transmission && car.transmission !== '0' && <Attribute>Vites: {car.transmission}</Attribute>}
               </CarAttributes>
-              <CarDetails>{car.details}</CarDetails>
-              <Price>{car.price || '0 ₺'}</Price>
+              {car.details && <CarDetails>{car.details}</CarDetails>}
+              {car.price && car.price !== '0' && car.price !== '0 ₺' && <Price>{car.price}</Price>}
               {carPhotos.length > 1 && (
                 <PhotosContainer>
                   {carPhotos.map((photo, idx) => (
@@ -449,33 +451,51 @@ function CarsForSale() {
               ))}
             </ModalImages>
             <ModalDetails>
-              <ModalAttribute>
-                <span>Yıl:</span> {selectedCar.year}
-              </ModalAttribute>
-              <ModalAttribute>
-                <span>Km:</span> {selectedCar.km}
-              </ModalAttribute>
-              {selectedCar.color && (
+              {selectedCar.brand && selectedCar.brand !== '0' && (
+                <ModalAttribute>
+                  <span>Marka:</span> {selectedCar.brand}
+                </ModalAttribute>
+              )}
+              {selectedCar.condition && selectedCar.condition !== '0' && (
+                <ModalAttribute>
+                  <span>Durum:</span> {selectedCar.condition}
+                </ModalAttribute>
+              )}
+              {selectedCar.year && selectedCar.year !== '0' && (
+                <ModalAttribute>
+                  <span>Yıl:</span> {selectedCar.year}
+                </ModalAttribute>
+              )}
+              {selectedCar.km && selectedCar.km !== '0' && (
+                <ModalAttribute>
+                  <span>Km:</span> {selectedCar.km}
+                </ModalAttribute>
+              )}
+              {selectedCar.color && selectedCar.color !== '0' && (
                 <ModalAttribute>
                   <span>Renk:</span> {selectedCar.color}
                 </ModalAttribute>
               )}
-              {selectedCar.fuelType && (
+              {selectedCar.fuelType && selectedCar.fuelType !== '0' && (
                 <ModalAttribute>
                   <span>Yakıt:</span> {selectedCar.fuelType}
                 </ModalAttribute>
               )}
-              {selectedCar.transmission && (
+              {selectedCar.transmission && selectedCar.transmission !== '0' && (
                 <ModalAttribute>
                   <span>Vites:</span> {selectedCar.transmission}
                 </ModalAttribute>
               )}
-              <ModalAttribute>
-              <span>Fiyat:</span> 0 ₺
-              </ModalAttribute>
-              <ModalAttribute>
-                <span>Detaylar:</span> {selectedCar.details}
-              </ModalAttribute>
+              {selectedCar.price && selectedCar.price !== '0' && selectedCar.price !== '0 ₺' && (
+                <ModalAttribute>
+                  <span>Fiyat:</span> {selectedCar.price}
+                </ModalAttribute>
+              )}
+              {selectedCar.details && (
+                <ModalAttribute>
+                  <span>Detaylar:</span> {selectedCar.details}
+                </ModalAttribute>
+              )}
             </ModalDetails>
             <CloseButton onClick={() => setSelectedCar(null)}>×</CloseButton>
           </ModalContent>

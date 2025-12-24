@@ -338,6 +338,8 @@ const emptyCarForm = {
   color: '',
   fuelType: '',
   transmission: '',
+  brand: '',
+  condition: '',
   imageFiles: [] // Array of image files
 };
 
@@ -434,10 +436,20 @@ function Admin() {
       // Upload all images
       const uploadedUrls = [];
       for (const file of carForm.imageFiles) {
-        const imageFormData = new FormData();
-        imageFormData.append('image', file);
-        const uploadResponse = await api.uploadImage(imageFormData);
-        uploadedUrls.push(uploadResponse.data.url);
+        try {
+          const imageFormData = new FormData();
+          imageFormData.append('image', file);
+          const uploadResponse = await api.uploadImage(imageFormData);
+          uploadedUrls.push(uploadResponse.data.url);
+        } catch (uploadError) {
+          console.error('Image upload error:', uploadError);
+          // Check if it's a connection error
+          if (uploadError.code === 'ERR_NETWORK' || uploadError.message?.includes('ERR_CONNECTION_REFUSED') || uploadError.message?.includes('Network Error')) {
+            setStatus({ type: 'error', message: 'Backend sunucusuna bağlanılamıyor. Lütfen backend sunucusunun çalıştığından emin olun (port 5001).' });
+            return;
+          }
+          throw uploadError;
+        }
       }
 
       if (uploadedUrls.length === 0) {
@@ -447,6 +459,8 @@ function Admin() {
 
       const payload = {
         title: carForm.title,
+        brand: carForm.brand,
+        condition: carForm.condition,
         year: carForm.year,
         km: carForm.km,
         details: carForm.details,
@@ -470,7 +484,17 @@ function Admin() {
       loadCars();
     } catch (error) {
       console.error('Car save error:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Araç kaydedilirken hata oluştu.';
+      let errorMessage = 'Araç kaydedilirken hata oluştu.';
+      
+      // Check for connection errors
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED') || error.message?.includes('Network Error')) {
+        errorMessage = 'Backend sunucusuna bağlanılamıyor. Lütfen backend sunucusunun çalıştığından emin olun (port 5001).';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setStatus({ type: 'error', message: errorMessage });
     }
   };
@@ -605,6 +629,8 @@ function Admin() {
       color: car.color || '',
       fuelType: car.fuelType || '',
       transmission: car.transmission || '',
+      brand: car.brand || '',
+      condition: car.condition || '',
       imageFiles: [] // Files will be empty when editing, user can add new ones
     });
     setEditingCarId(car._id);
@@ -658,6 +684,8 @@ function Admin() {
           <SectionTitle>{editingCarId ? 'Araç Düzenle' : 'Yeni Araç Ekle'}</SectionTitle>
           <Form onSubmit={handleCarSubmit}>
             <Input placeholder="Başlık" value={carForm.title} onChange={e => setCarForm({ ...carForm, title: e.target.value })} required />
+            <Input placeholder="Marka" value={carForm.brand} onChange={e => setCarForm({ ...carForm, brand: e.target.value })} />
+            <Input placeholder="Araç Durumu" value={carForm.condition} onChange={e => setCarForm({ ...carForm, condition: e.target.value })} />
             <Input placeholder="Yıl" value={carForm.year} onChange={e => setCarForm({ ...carForm, year: e.target.value })} />
             <Input placeholder="Kilometre" value={carForm.km} onChange={e => setCarForm({ ...carForm, km: e.target.value })} />
             <Input placeholder="Fiyat" value={carForm.price} onChange={e => setCarForm({ ...carForm, price: e.target.value })} />
