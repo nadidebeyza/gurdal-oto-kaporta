@@ -89,15 +89,22 @@ router.post('/', async (req, res) => {
       return res.status(503).json({ message: 'Veritabanı modeli yüklenemedi.' });
     }
 
-    // Category validation
+    // Category validation - esnek yaklaşım (production model güncellenene kadar)
     const validCategories = ['Kaporta', 'Boyama', 'Kaporta & Boya Onarım', 'Çekici', 'Diğer'];
-    const category = req.body.category || 'Diğer';
+    let category = req.body.category || 'Diğer';
     
+    // Eğer kategori enum'da yoksa ama geçerli kategorilerden biriyse, kullan
+    // Bu, production model güncellenene kadar geçici bir çözüm
     if (!validCategories.includes(category)) {
-      console.error('Invalid category:', category);
-      return res.status(400).json({ 
-        message: `Geçersiz kategori: ${category}. Geçerli kategoriler: ${validCategories.join(', ')}` 
-      });
+      // "Kaporta & Boya Onarım" için alternatif kontrol
+      if (category.includes('Kaporta') && category.includes('Boya')) {
+        category = 'Kaporta & Boya Onarım';
+      } else if (validCategories.includes(category)) {
+        // Zaten geçerli
+      } else {
+        console.warn('Invalid category, using default:', category);
+        category = 'Diğer';
+      }
     }
 
     const image = new GalleryImage({
