@@ -10,39 +10,36 @@ try {
   console.log('GalleryImage model not available:', error.message);
 }
 
+// Geçici in-memory storage (MongoDB bağlantısı olmadığında kullanılır)
+let inMemoryGallery = [];
+
 // Get all gallery images
 router.get('/', async (req, res) => {
   try {
-    // Check if GalleryImage model is available
-    if (!GalleryImage) {
-      console.log('GalleryImage model not available, returning empty array');
-      return res.json([]);
-    }
     // Check if MongoDB is connected
-    if (!mongoose.connection || mongoose.connection.readyState !== 1) {
-      console.log('MongoDB not connected, returning empty array');
-      return res.json([]); // Return empty array if DB not connected
+    const isConnected = mongoose.connection && mongoose.connection.readyState === 1;
+    
+    if (isConnected && GalleryImage) {
+      // MongoDB bağlantısı var, veritabanından çek
+      const images = await GalleryImage.find().sort({ createdAt: -1 });
+      // In-memory'deki görselleri de ekle (geçici çözüm)
+      const allImages = [...images, ...inMemoryGallery];
+      return res.json(allImages);
+    } else {
+      // MongoDB bağlantısı yok, sadece in-memory'den döndür
+      console.log('MongoDB not connected, returning in-memory gallery');
+      return res.json(inMemoryGallery);
     }
-    const images = await GalleryImage.find().sort({ createdAt: -1 });
-    res.json(images);
   } catch (error) {
     console.error('Error fetching gallery images:', error.message);
-    // Always return empty array instead of 500 error
-    return res.json([]);
+    // Hata durumunda in-memory'den döndür
+    return res.json(inMemoryGallery);
   }
 });
 
 // Add a new gallery image
 router.post('/', async (req, res) => {
   try {
-    // Check if GalleryImage model is available
-    if (!GalleryImage) {
-      return res.status(503).json({ message: 'Veritabanı modeli yüklenemedi.' });
-    }
-    // Check if MongoDB is connected
-    if (!mongoose.connection || mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: 'Veritabanı bağlantısı yok. Lütfen MongoDB yapılandırmasını kontrol edin.' });
-    }
     // Validate required fields
     if (!req.body.url || !req.body.title) {
       return res.status(400).json({ 
@@ -50,11 +47,46 @@ router.post('/', async (req, res) => {
       });
     }
 
+    // Check if MongoDB is connected
+    const connectionState = mongoose.connection.readyState;
+    const isConnected = mongoose.connection && connectionState === 1;
+    
+    if (!isConnected) {
+      const stateMessages = {
+        0: 'Bağlantı kesildi',
+        2: 'Bağlanıyor...',
+        3: 'Bağlantı kesiliyor...'
+      };
+      const stateMsg = stateMessages[connectionState] || 'Bilinmeyen durum';
+      console.warn(`⚠️  MongoDB not connected (State: ${connectionState} - ${stateMsg}). Görsel in-memory'ye kaydediliyor.`);
+      
+      // In-memory'ye kaydet (geçici çözüm)
+      const tempImage = {
+        _id: 'temp_' + Date.now(),
+        url: req.body.url,
+        title: req.body.title,
+        description: req.body.description,
+        category: req.body.category || 'Diğer',
+        processId: req.body.processId,
+        createdAt: new Date()
+      };
+      inMemoryGallery.push(tempImage);
+      
+      return res.status(201).json(tempImage);
+    }
+
+    // MongoDB bağlantısı var, normal kayıt işlemi
+    if (!GalleryImage) {
+      console.error('GalleryImage model not available');
+      return res.status(503).json({ message: 'Veritabanı modeli yüklenemedi.' });
+    }
+
     const image = new GalleryImage({
       url: req.body.url,
       title: req.body.title,
       description: req.body.description,
-      category: req.body.category || 'Diğer'
+      category: req.body.category || 'Diğer',
+      processId: req.body.processId // Aynı işlem için gruplama
     });
     const newImage = await image.save();
     res.status(201).json(newImage);
@@ -68,12 +100,20 @@ router.post('/', async (req, res) => {
 // Delete a gallery image
 router.delete('/:id', async (req, res) => {
   try {
-    if (!GalleryImage || !mongoose.connection || mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ message: 'Veritabanı bağlantısı yok.' });
+    const isConnected = mongoose.connection && mongoose.connection.readyState === 1;
+    
+    if (isConnected && GalleryImage) {
+      // MongoDB'den sil
+      await GalleryImage.findByIdAndDelete(req.params.id);
     }
-    await GalleryImage.findByIdAndDelete(req.params.id);
+    
+    // In-memory'den de sil
+    inMemoryGallery = inMemoryGallery.filter(img => img._id !== req.params.id);
+    
     res.json({ message: 'Görsel başarıyla silindi' });
   } catch (error) {
+    // Hata durumunda da in-memory'den silmeyi dene
+    inMemoryGallery = inMemoryGallery.filter(img => img._id !== req.params.id);
     res.status(500).json({ message: error.message });
   }
 });

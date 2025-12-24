@@ -47,7 +47,6 @@ const router = createBrowserRouter(
         { path: '/sigorta-kasko', element: <Insurance /> },
         { path: '/hakkimizda', element: <About /> },
         { path: '/iletisim', element: <Contact /> },
-        { path: '/admin', element: <Admin /> },
       ],
     },
     {
@@ -59,11 +58,19 @@ const router = createBrowserRouter(
       element: <Navigate to="/giris" replace />,
     },
     {
+      path: '/admin',
+      element: (
+        <ProtectedRoute>
+          <Admin />
+        </ProtectedRoute>
+      ),
+    },
+    {
       path: '/admin/dashboard/*',
       element: (
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
       ),
     },
   ],

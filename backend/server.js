@@ -26,14 +26,20 @@ app.use(express.json());
 if (process.env.MONGODB_URI) {
   mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // 5 saniye timeout
+    socketTimeoutMS: 45000, // 45 saniye socket timeout
   }).then(() => {
-    console.log('MongoDB connected');
+    console.log('✅ MongoDB connected successfully');
+    console.log('   Database:', mongoose.connection.name);
+    console.log('   Host:', mongoose.connection.host);
   }).catch((err) => {
-    console.log('MongoDB connection error (server will continue without DB):', err.message);
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('   URI:', process.env.MONGODB_URI.replace(/:[^:@]+@/, ':****@')); // Şifreyi gizle
+    console.log('   Server will continue without database (login still works)');
   });
 } else {
-  console.log('MongoDB URI not set - running without database (login still works)');
+  console.log('⚠️  MongoDB URI not set - running without database (login still works)');
 }
 
 // Routes

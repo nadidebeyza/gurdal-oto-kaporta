@@ -345,7 +345,7 @@ const emptyGalleryForm = {
   title: '',
   description: '',
   category: 'Diğer',
-  imageFile: null,
+  imageFiles: [], // Çoklu dosya desteği
   imageUrl: ''
 };
 
@@ -358,6 +358,7 @@ function Admin() {
   const [carsLoading, setCarsLoading] = useState(false);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [galleryImagePreview, setGalleryImagePreview] = useState('');
+  const [galleryImagePreviews, setGalleryImagePreviews] = useState([]); // Çoklu önizleme
   const [editingCarId, setEditingCarId] = useState(null);
   const [editingGalleryId, setEditingGalleryId] = useState(null);
 
@@ -376,7 +377,18 @@ function Admin() {
   const resetGalleryForm = () => {
     setGalleryForm(emptyGalleryForm);
     setGalleryImagePreview('');
+    setGalleryImagePreviews([]);
     setEditingGalleryId(null);
+  };
+
+  const removeGalleryImage = (index) => {
+    setGalleryForm({
+      ...galleryForm,
+      imageFiles: galleryForm.imageFiles.filter((_, i) => i !== index)
+    });
+    setGalleryImagePreviews(galleryForm.imageFiles
+      .filter((_, i) => i !== index)
+      .map(file => URL.createObjectURL(file)));
   };
 
   const loadCars = async () => {
@@ -467,38 +479,85 @@ function Admin() {
     e.preventDefault();
     setStatus(null);
     const isEditing = Boolean(editingGalleryId);
-    if (!isEditing && !galleryForm.imageFile && !galleryForm.imageUrl) {
-      setStatus({ type: 'error', message: 'Lütfen galeri için bir görsel URL girin veya dosya seçin.' });
+    
+    // Düzenleme modunda tek görsel, yeni eklemede çoklu görsel
+    if (isEditing) {
+      // Düzenleme: Tek görsel (eski mantık)
+      if (!galleryForm.imageUrl) {
+        setStatus({ type: 'error', message: 'Lütfen galeri için bir görsel URL girin.' });
+        return;
+      }
+      try {
+        const galleryImageData = {
+          title: galleryForm.title,
+          description: galleryForm.description,
+          category: galleryForm.category,
+          url: galleryForm.imageUrl
+        };
+        await api.updateGalleryImage(editingGalleryId, galleryImageData);
+        setStatus({ type: 'success', message: 'Galeri görseli güncellendi.' });
+        resetGalleryForm();
+        loadGallery();
+      } catch (error) {
+        console.error('Gallery update error:', error);
+        const errorMessage = error.response?.data?.message || error.message || 'Galeri güncellenirken hata oluştu.';
+        setStatus({ type: 'error', message: errorMessage });
+      }
       return;
     }
-    try {
-      let uploadedImageUrl = galleryForm.imageUrl;
 
-      if (galleryForm.imageFile) {
+    // Yeni ekleme: Çoklu görsel desteği
+    if (!galleryForm.imageFiles || galleryForm.imageFiles.length === 0) {
+      setStatus({ type: 'error', message: 'Lütfen en az bir görsel seçin.' });
+      return;
+    }
+
+    try {
+      // Tüm görselleri yükle
+      const uploadedUrls = [];
+      for (const file of galleryForm.imageFiles) {
         const imageFormData = new FormData();
-        imageFormData.append('image', galleryForm.imageFile);
+        imageFormData.append('image', file);
         const uploadResponse = await api.uploadImage(imageFormData);
-        uploadedImageUrl = uploadResponse.data.url;
+        uploadedUrls.push(uploadResponse.data.url);
       }
 
-      if (!uploadedImageUrl) {
+      if (uploadedUrls.length === 0) {
         setStatus({ type: 'error', message: 'Görsel yüklenemedi.' });
         return;
       }
 
-      const galleryImageData = {
-        title: galleryForm.title,
-        description: galleryForm.description,
-        category: galleryForm.category,
-        url: uploadedImageUrl
-      };
+      // Aynı işlem için processId oluştur (başlık + açıklama kombinasyonu)
+      const processId = `${galleryForm.title}_${galleryForm.description || ''}_${Date.now()}`.replace(/\s+/g, '_').toLowerCase();
+      
+      // Her görseli ayrı bir kayıt olarak ekle (aynı başlık, açıklama, kategori ve processId ile)
+      let successCount = 0;
+      let errorCount = 0;
 
-      if (isEditing) {
-        await api.updateGalleryImage(editingGalleryId, galleryImageData);
-        setStatus({ type: 'success', message: 'Galeri görseli güncellendi.' });
+      for (const url of uploadedUrls) {
+        try {
+          const galleryImageData = {
+            title: galleryForm.title,
+            description: galleryForm.description,
+            category: galleryForm.category,
+            url: url,
+            processId: processId // Aynı işlem için aynı processId
+          };
+          await api.addGalleryImage(galleryImageData);
+          successCount++;
+        } catch (error) {
+          console.error('Error adding gallery image:', error);
+          errorCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        setStatus({ 
+          type: 'success', 
+          message: `${successCount} görsel başarıyla eklendi.${errorCount > 0 ? ` ${errorCount} görsel eklenirken hata oluştu.` : ''}` 
+        });
       } else {
-        await api.addGalleryImage(galleryImageData);
-        setStatus({ type: 'success', message: 'Galeri görseli eklendi.' });
+        setStatus({ type: 'error', message: 'Görseller eklenirken hata oluştu.' });
       }
 
       resetGalleryForm();
@@ -544,10 +603,11 @@ function Admin() {
       title: image.title || '',
       description: image.description || '',
       category: image.category || 'Diğer',
-      imageFile: null,
+      imageFiles: [],
       imageUrl: image.url || ''
     });
     setGalleryImagePreview(image.url || '');
+    setGalleryImagePreviews([]);
     setEditingGalleryId(image._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -675,33 +735,65 @@ function Admin() {
             Galeriye yeni görseller ekleyebilir veya gereksiz görselleri kaldırabilirsiniz.
           </PanelText>
 
-          <SectionTitle>{editingGalleryId ? 'Görsel Düzenle' : 'Yeni Görsel Ekle'}</SectionTitle>
+          <SectionTitle>{editingGalleryId ? 'Görsel Düzenle' : 'Yeni Görsel Ekle (Çoklu)'}</SectionTitle>
           <Form onSubmit={handleGallerySubmit}>
             <Input placeholder="Başlık" value={galleryForm.title} onChange={e => setGalleryForm({ ...galleryForm, title: e.target.value })} required />
             <Select value={galleryForm.category} onChange={e => setGalleryForm({ ...galleryForm, category: e.target.value })}>
               <option value="Kaporta">Kaporta</option>
               <option value="Boyama">Boyama</option>
+              <option value="Kaporta & Boya Onarım">Kaporta & Boya Onarım</option>
               <option value="Çekici">Çekici</option>
               <option value="Diğer">Diğer</option>
             </Select>
-            <Input
-              placeholder="Görsel URL (veya dosya seçin)"
-              value={galleryForm.imageUrl}
-              onChange={e => {
-                setGalleryForm({ ...galleryForm, imageUrl: e.target.value, imageFile: null });
-                setGalleryImagePreview(e.target.value || '');
-              }}
-            />
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setGalleryForm({ ...galleryForm, imageFile: file, imageUrl: '' });
-                setGalleryImagePreview(file ? URL.createObjectURL(file) : '');
-              }}
-            />
-            {galleryImagePreview && <ImagePreview src={galleryImagePreview} alt="Galeri görsel önizleme" />}
+            {editingGalleryId ? (
+              // Düzenleme modu: Tek görsel URL
+              <>
+                <Input
+                  placeholder="Görsel URL"
+                  value={galleryForm.imageUrl}
+                  onChange={e => {
+                    setGalleryForm({ ...galleryForm, imageUrl: e.target.value });
+                    setGalleryImagePreview(e.target.value || '');
+                  }}
+                />
+                {galleryImagePreview && <ImagePreview src={galleryImagePreview} alt="Galeri görsel önizleme" />}
+              </>
+            ) : (
+              // Yeni ekleme modu: Çoklu dosya seçimi
+              <>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setGalleryForm({ ...galleryForm, imageFiles: [...galleryForm.imageFiles, ...files] });
+                    setGalleryImagePreviews([
+                      ...galleryImagePreviews,
+                      ...files.map(file => URL.createObjectURL(file))
+                    ]);
+                  }}
+                />
+                {galleryForm.imageFiles && galleryForm.imageFiles.length > 0 && (
+                  <PhotoListContainer>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.5rem', marginTop: '1rem' }}>
+                      {galleryForm.imageFiles.map((file, index) => (
+                        <div key={index} style={{ position: 'relative' }}>
+                          <ImagePreview src={URL.createObjectURL(file)} alt={`Görsel ${index + 1}`} />
+                          <RemovePhotoButton 
+                            type="button" 
+                            onClick={() => removeGalleryImage(index)}
+                            style={{ position: 'absolute', top: '5px', right: '5px', padding: '0.2rem 0.4rem' }}
+                          >
+                            <FaTrash />
+                          </RemovePhotoButton>
+                        </div>
+                      ))}
+                    </div>
+                  </PhotoListContainer>
+                )}
+              </>
+            )}
             <TextArea placeholder="Açıklama" value={galleryForm.description} onChange={e => setGalleryForm({ ...galleryForm, description: e.target.value })} />
             <FormActions>
               <SubmitButton type="submit">
@@ -711,7 +803,7 @@ function Admin() {
                   </>
                 ) : (
                   <>
-                    <FaPlus /> Görsel Ekle
+                    <FaPlus /> {galleryForm.imageFiles?.length > 0 ? `${galleryForm.imageFiles.length} Görsel Ekle` : 'Görsel Ekle'}
                   </>
                 )}
               </SubmitButton>
