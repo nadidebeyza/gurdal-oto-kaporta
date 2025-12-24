@@ -233,37 +233,6 @@ const GalleryImage = styled.img`
   }
 `;
 
-const ImageOverlay = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(90deg, #232526 0%, #414345 100%);
-  color: #fff;
-  padding: 1rem;
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
-  transform: translateY(100%);
-  transition: transform 0.3s;
-  z-index: 5;
-  
-  ${ImageCard}:hover &,
-  ${ProcessGroup}:hover & {
-    transform: translateY(0);
-  }
-  
-  h3 {
-    margin: 0 0 0.3rem 0;
-    font-size: 1.15rem;
-    font-weight: 700;
-  }
-  p {
-    margin: 0;
-    font-size: 0.98rem;
-    opacity: 0.95;
-  }
-`;
-
 const Modal = styled.div`
   position: fixed;
   top: 0;
@@ -397,10 +366,9 @@ function Gallery() {
     loadGallery();
   }, []);
 
-  const imageList = Array.isArray(images) ? images : [];
-
   // Görselleri processId'ye göre grupla
   const groupedImages = useMemo(() => {
+    const imageList = Array.isArray(images) ? images : [];
     const groups = {};
     const singles = [];
     
@@ -424,7 +392,7 @@ function Gallery() {
     });
     
     return { groups, singles };
-  }, [imageList, filters.category]);
+  }, [images, filters.category]);
 
   // Slider index yönetimi
   const handleSliderNext = (processId, maxIndex) => {
