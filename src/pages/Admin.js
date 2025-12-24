@@ -452,7 +452,27 @@ function Admin() {
         }
       }
 
-      if (uploadedUrls.length === 0) {
+      // For editing: if no new images uploaded, use existing images
+      let finalImageUrls = uploadedUrls;
+      if (isEditing && uploadedUrls.length === 0) {
+        const existingCar = cars.find(car => car._id === editingCarId);
+        if (existingCar) {
+          // Use existing photos if available, otherwise use main image
+          if (existingCar.photos && existingCar.photos.length > 0) {
+            finalImageUrls = existingCar.photos;
+          } else if (existingCar.image) {
+            finalImageUrls = [existingCar.image];
+          } else {
+            setStatus({ type: 'error', message: 'Görsel bulunamadı. Lütfen yeni görsel yükleyin.' });
+            return;
+          }
+        } else {
+          setStatus({ type: 'error', message: 'Araç bulunamadı.' });
+          return;
+        }
+      }
+
+      if (!isEditing && uploadedUrls.length === 0) {
         setStatus({ type: 'error', message: 'Görsel yüklenemedi.' });
         return;
       }
@@ -468,8 +488,8 @@ function Admin() {
         color: carForm.color,
         fuelType: carForm.fuelType,
         transmission: carForm.transmission,
-        image: uploadedUrls[0], // First image as main
-        photos: uploadedUrls // All images in photos array
+        image: finalImageUrls[0], // First image as main
+        photos: finalImageUrls // All images in photos array
       };
 
       if (isEditing) {
